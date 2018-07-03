@@ -12,3 +12,4 @@ class Comment(db.Model):
     pid = db.Column(db.BIGINT(20), nullable=False)
     content = db.Column(db.String(200), nullable=False)
     date_publish = db.Column(db.TIMESTAMP, nullable=False)
+    deleted = db.Column(db.String(1), nullable=False, default='0')

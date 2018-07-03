@@ -24,12 +24,12 @@ DROP TABLE IF EXISTS `blog_article`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `blog_article` (
   `id` bigint(20) NOT NULL COMMENT '文章序号',
-  `tag_id` bigint(20) NOT NULL COMMENT '标签序号',
   `title` varchar(50) NOT NULL COMMENT '文章标题',
   `desc` varchar(200) NOT NULL COMMENT '文章描述',
   `content` mediumtext NOT NULL COMMENT '文章内容',
   `click_count` bigint(20) NOT NULL DEFAULT '0' COMMENT '文章点击次数',
   `date_publish` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '发布日期',
+  `deleted` varchar(1) NOT NULL DEFAULT '0' COMMENT '是否删除，默认为‘0’代表未删除，‘1’代表已删除',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
   UNIQUE KEY `title_UNIQUE` (`title`)
@@ -69,6 +69,7 @@ CREATE TABLE `blog_comment` (
   `pid` bigint(20) NOT NULL COMMENT '父级序号',
   `content` varchar(200) NOT NULL COMMENT '评论内容',
   `date_publish` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '发布时间',
+  `deleted` varchar(1) NOT NULL COMMENT '是否删除，''0''代表未删除,''1''代表已删除',
   KEY `fk_blog_comment_1_idx` (`user_id`),
   KEY `fk_blog_comment_2_idx` (`article_id`),
   CONSTRAINT `fk_blog_comment_1` FOREIGN KEY (`user_id`) REFERENCES `blog_user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -139,4 +140,4 @@ CREATE TABLE `system_user` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-03  3:31:56
+-- Dump completed on 2018-07-03 14:09:43
