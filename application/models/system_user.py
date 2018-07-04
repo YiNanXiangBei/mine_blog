@@ -36,14 +36,14 @@ class SysUser(db.Model):
         session_commit()
 
     @staticmethod
-    def get_password(username):
+    def get_info(username):
         """
         查询密码（不提供给前端，仅用于校验）
         :param username:
         :return:
         """
-        password = db.session.query(SysUser).filter_by(username=username).first()
-        return password
+        user_info = db.session.query(SysUser).filter_by(username=username).first()
+        return user_info
 
     @staticmethod
     def update(sys_user):
@@ -55,6 +55,18 @@ class SysUser(db.Model):
         db.session.query(SysUser).filter_by(id=sys_user.id). \
             update({'password': sys_user.password, 'email': sys_user.email,
                     'avatar': sys_user.avatar, 'last_login': sys_user.last_login})
+        session_commit()
+
+    @staticmethod
+    def update_login_time(user_id, login_time):
+        """
+        修改上次登录时间
+        :param user_id:
+        :param login_time:
+        :return:
+        """
+        db.session.query(SysUser).filter_by(id=user_id). \
+            update({'last_login': login_time})
         session_commit()
 
 
