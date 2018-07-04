@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `blog_article`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `blog_article` (
-  `id` bigint(20) NOT NULL COMMENT '文章序号',
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '文章序号',
   `title` varchar(50) NOT NULL COMMENT '文章标题',
   `desc` varchar(200) NOT NULL COMMENT '文章描述',
   `content` mediumtext NOT NULL COMMENT '文章内容',
@@ -33,27 +33,7 @@ CREATE TABLE `blog_article` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
   UNIQUE KEY `title_UNIQUE` (`title`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `blog_article_tag`
---
-
-DROP TABLE IF EXISTS `blog_article_tag`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `blog_article_tag` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '序号',
-  `tag_id` bigint(20) NOT NULL COMMENT '标签序号',
-  `article_id` bigint(20) NOT NULL COMMENT '文章序号',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `fk_blog_article_tag_1_idx` (`article_id`),
-  KEY `fk_blog_article_tag_2_idx` (`tag_id`),
-  CONSTRAINT `fk_blog_article_tag_1` FOREIGN KEY (`article_id`) REFERENCES `blog_article` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_blog_article_tag_2` FOREIGN KEY (`tag_id`) REFERENCES `blog_tag` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -66,10 +46,13 @@ DROP TABLE IF EXISTS `blog_comment`;
 CREATE TABLE `blog_comment` (
   `user_id` bigint(20) NOT NULL COMMENT '用户序号',
   `article_id` bigint(20) NOT NULL COMMENT '文章序号',
-  `pid` bigint(20) NOT NULL COMMENT '父级序号',
+  `pid` bigint(20) NOT NULL DEFAULT '0' COMMENT '父级序号',
   `content` varchar(200) NOT NULL COMMENT '评论内容',
   `date_publish` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '发布时间',
   `deleted` varchar(1) NOT NULL COMMENT '是否删除，''0''代表未删除,''1''代表已删除',
+  `comment_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`comment_id`),
+  UNIQUE KEY `comment_id_UNIQUE` (`comment_id`),
   KEY `fk_blog_comment_1_idx` (`user_id`),
   KEY `fk_blog_comment_2_idx` (`article_id`),
   CONSTRAINT `fk_blog_comment_1` FOREIGN KEY (`user_id`) REFERENCES `blog_user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -108,7 +91,7 @@ CREATE TABLE `blog_user` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
   UNIQUE KEY `username_UNIQUE` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -140,4 +123,4 @@ CREATE TABLE `system_user` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-07-03 14:09:43
+-- Dump completed on 2018-07-04  9:57:10
