@@ -79,6 +79,10 @@ class Comment(db.Model):
 
 
 def session_commit():
+    """
+    事务提交，如果失败则回滚
+    :return:
+    """
     try:
         db.session.commit()
     except SQLAlchemyError as e:

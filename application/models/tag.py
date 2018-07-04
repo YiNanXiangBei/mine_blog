@@ -2,6 +2,8 @@
 # @author: yinan
 # @time: 18-7-3 下午1:36
 # @filename: tag.py
+from sqlalchemy.exc import SQLAlchemyError
+
 from application import db
 
 at = db.Table('at',
@@ -17,3 +19,50 @@ class Tag(db.Model):
     articles = db.relationship('Article', secondary=at,
                                backref=db.backref('tags', lazy='dynamic'),
                                lazy='dynamic')
+
+    def __init__(self, tag, articles=None):
+        self.tag = tag
+        self.articles = articles
+
+    def __str__(self):
+        return "<tag={}>".format(self.tag)
+
+    @staticmethod
+    def save(tags):
+        """
+        保存标签
+        :param tags:
+        :return:
+        """
+        db.session.add(tags)
+
+    @staticmethod
+    def get_all():
+        """
+        查询所有标签
+        :return:
+        """
+        return db.session.query(Tag).all()
+
+    @staticmethod
+    def get_by_tag(tag):
+        """
+        模糊查询所有满足条件的标签
+        :param tag:
+        :return:
+        """
+        value = '{}%'.format(tag)
+        return db.session.query(Tag).filter(Tag.tag.like(value)).all()
+
+
+def session_commit():
+    """
+    事务提交，如果失败则回滚
+    :return:
+    """
+    try:
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        reason = str(e)
+        return reason

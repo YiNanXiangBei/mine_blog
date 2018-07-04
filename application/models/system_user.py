@@ -2,6 +2,8 @@
 # @author: yinan
 # @time: 18-7-3 下午1:35
 # @filename: system_user.py
+from sqlalchemy.exc import SQLAlchemyError
+
 from application import db
 
 
@@ -13,3 +15,57 @@ class SysUser(db.Model):
     email = db.Column(db.String(45), nullable=False)
     avatar = db.Column(db.String(50))
     last_login = db.Column(db.TIMESTAMP)
+
+    def __init__(self, username, password, email, avatar=None):
+        self.username = username
+        self.password = password
+        self.email = email
+        self.avatar = avatar
+
+    def __str__(self):
+        return "<username={}, email={}, avatar={}>".format(self.username, self.email, self.avatar)
+
+    @staticmethod
+    def save(sys_user):
+        """
+        新增系统用户
+        :param sys_user:
+        :return:
+        """
+        db.session.add(sys_user)
+        session_commit()
+
+    @staticmethod
+    def get_password(username):
+        """
+        查询密码（不提供给前端，仅用于校验）
+        :param username:
+        :return:
+        """
+        password = db.session.query(SysUser).filter_by(username=username).first()
+        return password
+
+    @staticmethod
+    def update(sys_user):
+        """
+        更新用户数据
+        :param sys_user:
+        :return:
+        """
+        db.session.query(SysUser).filter_by(id=sys_user.id). \
+            update({'password': sys_user.password, 'email': sys_user.email,
+                    'avatar': sys_user.avatar, 'last_login': sys_user.last_login})
+        session_commit()
+
+
+def session_commit():
+    """
+    事务提交，如果失败则回滚
+    :return:
+    """
+    try:
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        reason = str(e)
+        return reason
