@@ -10,4 +10,5 @@ from enum import Enum, unique
 
 @unique
 class Constant(Enum):
-    deleted = '1'
+    DELETED = '1'
+    UN_DELETED = '0'
