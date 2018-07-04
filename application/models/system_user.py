@@ -46,6 +46,16 @@ class SysUser(db.Model):
         return user_info
 
     @staticmethod
+    def get_info_by_id(id):
+        """
+        依据id查询用户信息
+        :param id:
+        :return:
+        """
+        user_info = db.session.query(SysUser).filter_by(id=id).first()
+        return user_info
+
+    @staticmethod
     def update(sys_user):
         """
         更新用户数据

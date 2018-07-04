@@ -3,13 +3,13 @@
 # @time: 18-7-4 下午5:37
 # @filename: sys_verificate.py
 import datetime
-import time
 import jwt
 from flask import jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from application import configs
 from application.constant import response
+from application.constant.constant import Message, Code
 from application.models.system_user import SysUser
 
 
@@ -28,8 +28,8 @@ class Verificate(object):
         """
         try:
             payload = {
-                'exp': datetime.datetime.utcnow() + configs.JWT_EXPIRATION_DELTA,
-                'iat': datetime.datetime.utcnow(),
+                'exp': datetime.datetime.now() + configs.JWT_EXPIRATION_DELTA,
+                'iat': datetime.datetime.now(),
                 'iss': 'ken',
                 'data': {
                     'id': user_id,
@@ -58,9 +58,9 @@ class Verificate(object):
             else:
                 raise jwt.InvalidTokenError
         except jwt.ExpiredSignatureError:
-            return 'Token 过期请重新登录'
+            return Message.TOKEN_EXPIRED.value
         except jwt.InvalidTokenError:
-            return '无效 Token，请重新登录'
+            return Message.TOKEN_INVALID.value
 
     def authenticate(self, username, password):
         """
@@ -71,15 +71,16 @@ class Verificate(object):
         """
         user_info = SysUser.get_info(username)
         if user_info is None:
-            return jsonify(response.return_message('', '找不到用户', 400))
+            return jsonify(response.return_message('', Message.BAD_REQUEST.value, Code.BAD_REQUEST.value))
         else:
             if check_password(user_info.password, password):
-                login_time = int(time.time())
+                now = datetime.datetime.now()
+                login_time = now.strftime("%Y-%m-%d %H:%M:%S")
                 SysUser.update_login_time(user_info.id, login_time)
                 token = self.encode_auth_token(user_info.id, login_time)
-                return jsonify(response.return_message(token.decode(), '登录成功', 200))
+                return jsonify(response.return_message(token.decode(), Message.LOGIN_SUCCESS.value, Code.SUCCESS.value))
             else:
-                return jsonify(response.return_message('', '密码不正确', 400))
+                return jsonify(response.return_message('', Message.LOGIN_FAILED.value, Code.BAD_REQUEST.value))
 
 
 def check_password(hash, password):
