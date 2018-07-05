@@ -14,17 +14,18 @@ uc = db.Table('uc',
 
 class User(db.Model):
     __tablename__ = 'blog_user'
-    id = db.Column(db.BIGINT(20), primary_key=True, unique=True, nullable=False, autoincrement=True)
+    id = db.Column(db.BIGINT(20), primary_key=True, unique=True, nullable=False)
     username = db.Column(db.String(45), unique=True, nullable=False)
-    link = db.Column(db.String(50))
-    avatar = db.Column(db.String(45))
+    link = db.Column(db.String(200))
+    avatar = db.Column(db.String(200))
     # 在Comment类中添加了一个属性为user，类型为User
     comments = db.relationship('Comment',
                                secondary=uc,
                                backref=db.backref('user', lazy='dynamic'),
                                lazy='dynamic')
 
-    def __init__(self, username, link, avatar, comments=None):
+    def __init__(self, id, username, link, avatar, comments=None):
+        self.id = id
         self.username = username
         self.link = link
         self.avatar = avatar

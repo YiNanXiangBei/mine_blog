@@ -12,6 +12,7 @@ from enum import Enum, unique
 class Constant(Enum):
     DELETED = '1'
     UN_DELETED = '0'
+    TWO = 2
 
 
 @unique
