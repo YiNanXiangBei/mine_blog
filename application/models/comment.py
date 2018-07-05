@@ -6,7 +6,7 @@ import datetime
 
 from sqlalchemy.exc import SQLAlchemyError
 
-from application import db
+from application import db, app
 from application.constant.constant import Constant
 
 
@@ -37,6 +37,7 @@ class Comment(db.Model):
         :param comment: 实体类
         :return:
         """
+        app.logger.info("add comment ....")
         db.session.add(comment)
         session_commit()
 
@@ -47,6 +48,7 @@ class Comment(db.Model):
         :param comment_id:
         :return:
         """
+        app.logger.info("delete comment ....")
         now = datetime.datetime.now()
         now = now.strftime("%Y-%m-%d %H:%M:%S")
         db.session.query(Comment).filter_by(comment_id=comment_id). \
@@ -60,6 +62,7 @@ class Comment(db.Model):
         :param comment:
         :return:
         """
+        app.logger.info("update comment ....")
         db.session.query(Comment).filter_by(comment_id=comment.comment_id). \
             update({'content': comment.content,
                     'date_publish': comment.date_publish})
@@ -73,6 +76,7 @@ class Comment(db.Model):
         :param page_size:
         :return:
         """
+        app.logger.info("get all comment ....")
         comments = db.session.query(Comment).filter_by(deleted=Constant.UN_DELETED.value). \
             paginate(page_no, page_size, False)
         return comments
@@ -84,8 +88,10 @@ def session_commit():
     :return:
     """
     try:
+        app.logger.info("commit session ....")
         db.session.commit()
     except SQLAlchemyError as e:
+        app.logger.warning("commit session error: {}".format(e))
         db.session.rollback()
         reason = str(e)
         return reason

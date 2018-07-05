@@ -4,7 +4,7 @@
 # @filename: system_user.py
 from sqlalchemy.exc import SQLAlchemyError
 
-from application import db
+from application import db, app
 
 
 class SysUser(db.Model):
@@ -32,6 +32,7 @@ class SysUser(db.Model):
         :param sys_user:
         :return:
         """
+        app.logger.info("add sys_user ....")
         db.session.add(sys_user)
         session_commit()
 
@@ -42,6 +43,7 @@ class SysUser(db.Model):
         :param username:
         :return:
         """
+        app.logger.info("get info by username ....")
         user_info = db.session.query(SysUser).filter_by(username=username).first()
         return user_info
 
@@ -52,6 +54,7 @@ class SysUser(db.Model):
         :param id:
         :return:
         """
+        app.logger.info("get info by id ....")
         user_info = db.session.query(SysUser).filter_by(id=id).first()
         return user_info
 
@@ -62,6 +65,7 @@ class SysUser(db.Model):
         :param sys_user:
         :return:
         """
+        app.logger.info("update sys_user ....")
         db.session.query(SysUser).filter_by(id=sys_user.id). \
             update({'password': sys_user.password, 'email': sys_user.email,
                     'avatar': sys_user.avatar, 'last_login': sys_user.last_login})
@@ -75,6 +79,7 @@ class SysUser(db.Model):
         :param login_time:
         :return:
         """
+        app.logger.info("update user_id, login_time ....")
         db.session.query(SysUser).filter_by(id=user_id). \
             update({'last_login': login_time})
         session_commit()
@@ -86,8 +91,10 @@ def session_commit():
     :return:
     """
     try:
+        app.logger.info("commit session ....")
         db.session.commit()
     except SQLAlchemyError as e:
+        app.logger.warning("commit session error: {}".format(e))
         db.session.rollback()
         reason = str(e)
         return reason

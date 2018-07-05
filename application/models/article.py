@@ -6,7 +6,7 @@ import datetime
 
 from sqlalchemy.exc import SQLAlchemyError
 
-from application import db
+from application import db, app
 from application.constant.constant import Constant
 
 
@@ -42,6 +42,7 @@ class Article(db.Model):
         :param page_size:
         :return:
         """
+        app.logger.info("get article by paginate ....")
         articles = db.session.query(Article).filter_by(deleted=Constant.UN_DELETED.value). \
             paginate(page_no, page_size, False)
         return articles
@@ -53,11 +54,13 @@ class Article(db.Model):
         :param article_id: 文章id
         :return: 文章及评论
         """
+        app.logger.info("get article by id ....")
         article = db.session.query(Article).filter_by(id=article_id, deleted=Constant.UN_DELETED.value).first()
         return article
 
     @staticmethod
     def insert(article):
+        app.logger.info("insert article ....")
         db.session.add(article)
         session_commit()
 
@@ -68,6 +71,7 @@ class Article(db.Model):
         :param article_id:文章id
         :return:
         """
+        app.logger.info("delete article ....")
         now = datetime.datetime.now()
         now = now.strftime("%Y-%m-%d %H:%M:%S")
         db.session.query(Article).filter_by(id=article_id). \
@@ -81,6 +85,7 @@ class Article(db.Model):
         :param article:文章实例
         :return:
         """
+        app.logger.info("update article ....")
         db.session.query(Article).filter_by(id=article.id). \
             update({'title': article.title, 'desc': article.desc, 'content': article.content,
                     'date_publish': article.date_publish})
@@ -93,8 +98,10 @@ def session_commit():
     :return:
     """
     try:
+        app.logger.info("commit session ....")
         db.session.commit()
     except SQLAlchemyError as e:
+        app.logger.warning("commit session error: {}".format(e))
         db.session.rollback()
         reason = str(e)
         return reason

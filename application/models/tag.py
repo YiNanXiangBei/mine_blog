@@ -4,7 +4,7 @@
 # @filename: tag.py
 from sqlalchemy.exc import SQLAlchemyError
 
-from application import db
+from application import db, app
 
 at = db.Table('at',
               db.Column('article_id', db.BIGINT(20), db.ForeignKey('blog_article.id')),
@@ -34,7 +34,9 @@ class Tag(db.Model):
         :param tags:
         :return:
         """
+        app.logger.info("add tag ....")
         db.session.add(tags)
+        session_commit()
 
     @staticmethod
     def get_all():
@@ -51,6 +53,7 @@ class Tag(db.Model):
         :param tag:
         :return:
         """
+        app.logger.info("get tag ....")
         value = '{}%'.format(tag)
         return db.session.query(Tag).filter(Tag.tag.like(value)).all()
 
@@ -61,8 +64,10 @@ def session_commit():
     :return:
     """
     try:
+        app.logger.info("commit session ....")
         db.session.commit()
     except SQLAlchemyError as e:
+        app.logger.warning("commit session error: {}".format(e))
         db.session.rollback()
         reason = str(e)
         return reason

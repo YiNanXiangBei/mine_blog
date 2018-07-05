@@ -4,7 +4,7 @@
 # @filename: user.py
 from sqlalchemy.exc import SQLAlchemyError
 
-from application import db
+from application import db, app
 
 uc = db.Table('uc',
               db.Column('uid', db.BIGINT(20), db.ForeignKey('blog_user.id')),
@@ -40,6 +40,7 @@ class User(db.Model):
         :param user_id:
         :return:
         """
+        app.logger.info("get info by id ....")
         return db.session.query(User).filter(id=user_id).first()
 
     @staticmethod
@@ -49,6 +50,7 @@ class User(db.Model):
         :param user:
         :return:
         """
+        app.logger.info("add user ....")
         db.session.add(user)
         session_commit()
 
@@ -59,6 +61,7 @@ class User(db.Model):
         :param username:
         :return:
         """
+        app.logger.info("get user info ....")
         return db.session.query(User).filter(username=username).first()
 
 
@@ -68,8 +71,10 @@ def session_commit():
     :return:
     """
     try:
+        app.logger.info("commit session ....")
         db.session.commit()
     except SQLAlchemyError as e:
+        app.logger.warning("commit session error: {}".format(e))
         db.session.rollback()
         reason = str(e)
         return reason

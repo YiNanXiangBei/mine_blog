@@ -25,6 +25,7 @@ class Message(Enum):
     SUCCESS = '请求成功'
     NOT_FOUND = '没有找到指定资源'
     NOT_FOUND_USER = '没有找到用户'
+    CAN_NOT_GENERATE_TOKEN = '无法生成Token，请联系管理员'
 
 
 @unique
