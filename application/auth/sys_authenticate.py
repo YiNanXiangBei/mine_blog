@@ -38,7 +38,7 @@ def jwt_required(func):
                         if users is None:
                             result = response.return_message('', Message.NOT_FOUND_USER.value, Code.BAD_REQUEST.value)
                         else:
-                            if users.last_login == payload['data']['login_time']:
+                            if users.last_login.strftime("%Y-%m-%d %H:%M:%S") == payload['data']['login_time']:
                                 return_user = {
                                     'id': users.id,
                                     'username': users.username
@@ -46,7 +46,7 @@ def jwt_required(func):
                                 app.logger.info("request success!")
                                 result = response.return_message(return_user, Message.SUCCESS.value, Code.SUCCESS.value)
                             else:
-                                app.logger.waring("Token hash been changed, please login again")
+                                app.logger.warning("Token hash been changed, please login again")
                                 result = response.return_message('', Message.TOKEN_INVALID.value, Code.BAD_REQUEST.value)
                     else:
                         app.logger.info("login success redirect")

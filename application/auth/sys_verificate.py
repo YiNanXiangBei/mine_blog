@@ -30,7 +30,7 @@ class Verificate(object):
             payload = {
                 'exp': datetime.datetime.now() + configs.JWT_EXPIRATION_DELTA,
                 'iat': datetime.datetime.now(),
-                'iss': 'ken',
+                'iss': 'yinan',
                 'data': {
                     'id': user_id,
                     'login_time': login_time
@@ -52,7 +52,7 @@ class Verificate(object):
         :return:
         """
         try:
-            payload = jwt.decode(auth_token, configs.JWT_SECRET_KEY, options={'verify': False})
+            payload = jwt.decode(auth_token, configs.JWT_SECRET_KEY, options={'verify_iat': False})
             if 'data' in payload and 'id' in payload['data']:
                 app.logger.info("decode token success : {}".format(payload))
                 return payload
