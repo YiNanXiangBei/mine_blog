@@ -66,7 +66,8 @@ class Verificate(object):
             app.logger.warning("invalid token: {}".format(auth_token))
             return Message.TOKEN_INVALID.value
 
-    def authenticate(self, username, password):
+    @staticmethod
+    def authenticate(username, password):
         """
         用户登录，登录成功返回token, 登录失败返回失败原因
         :param username:
@@ -83,7 +84,7 @@ class Verificate(object):
                 now = datetime.datetime.now()
                 login_time = now.strftime("%Y-%m-%d %H:%M:%S")
                 SysUser.update_login_time(user_info.id, login_time)
-                token = self.encode_auth_token(user_info.id, login_time)
+                token = Verificate.encode_auth_token(user_info.id, login_time)
                 if token is None:
                     return jsonify(response.
                                    return_message('', Message.CAN_NOT_GENERATE_TOKEN.value, Code.BAD_REQUEST.value))

@@ -27,6 +27,8 @@ class Message(Enum):
     NOT_FOUND = '没有找到指定资源'
     NOT_FOUND_USER = '没有找到用户'
     CAN_NOT_GENERATE_TOKEN = '无法生成Token，请联系管理员'
+    REGISTER_FAILED = '注册失败'
+    REGISTER_SUCCESS = '注册成功'
 
 
 @unique
@@ -38,3 +40,4 @@ class Code(Enum):
     NOT_FOUND = 404
     FORBIDDEN = 403
     REDIRECT = 301
+    UNAUTHORIZED = 401

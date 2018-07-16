@@ -9,9 +9,9 @@ from application import db, app
 
 class SysUser(db.Model):
     __tablename__ = 'system_user'
-    id = db.Column(db.BIGINT(20), primary_key=True, nullable=False, unique=True, autoincrement=True)
+    id = db.Column(db.BigInteger, primary_key=True, nullable=False, unique=True, autoincrement=True)
     username = db.Column(db.String(45), unique=True, nullable=False)
-    password = db.Column(db.String(32), nullable=False)
+    password = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(45), nullable=False)
     avatar = db.Column(db.String(50))
     last_login = db.Column(db.TIMESTAMP)
@@ -34,7 +34,7 @@ class SysUser(db.Model):
         """
         app.logger.info("add sys_user ....")
         db.session.add(sys_user)
-        session_commit()
+        return session_commit()
 
     @staticmethod
     def get_info(username):
@@ -69,7 +69,7 @@ class SysUser(db.Model):
         db.session.query(SysUser).filter_by(id=sys_user.id). \
             update({'password': sys_user.password, 'email': sys_user.email,
                     'avatar': sys_user.avatar, 'last_login': sys_user.last_login})
-        session_commit()
+        return session_commit()
 
     @staticmethod
     def update_login_time(user_id, login_time):
@@ -82,7 +82,7 @@ class SysUser(db.Model):
         app.logger.info("update user_id, login_time ....")
         db.session.query(SysUser).filter_by(id=user_id). \
             update({'last_login': login_time})
-        session_commit()
+        return session_commit()
 
 
 def session_commit():
