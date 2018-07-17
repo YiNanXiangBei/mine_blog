@@ -28,8 +28,8 @@ class Verificate(object):
         """
         try:
             payload = {
-                'exp': datetime.datetime.now() + configs.JWT_EXPIRATION_DELTA,
-                'iat': datetime.datetime.now(),
+                'exp': datetime.datetime.utcnow() + configs.JWT_EXPIRATION_DELTA,
+                'iat': datetime.datetime.utcnow(),
                 'iss': 'yinan',
                 'data': {
                     'id': user_id,
@@ -77,7 +77,7 @@ class Verificate(object):
         user_info = SysUser.get_info(username)
         if user_info is None:
             app.logger.warning("can not find user: {}".format(username))
-            return jsonify(response.return_message('', Message.BAD_REQUEST.value, Code.BAD_REQUEST.value))
+            return jsonify(response.return_message('', Message.LOGIN_FAILED.value, Code.BAD_REQUEST.value))
         else:
             if check_password(user_info.password, password):
                 app.logger.debug("check password success ...")

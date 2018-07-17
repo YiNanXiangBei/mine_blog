@@ -2,6 +2,8 @@
 # @author: yinan
 # @time: 18-7-15 下午3:02
 # @filename: sys_admin_controller.py
+import json
+
 from flask import Blueprint, render_template, request, jsonify
 
 from application.auth.sys_authenticate import jwt_required
@@ -50,14 +52,30 @@ def validate(message):
 #     pass
 #
 #
-# @jwt_required
-# @admin.route('/info', methods=['GET'])
-# def info_page():
-#     '''
-#     用户信息页面
-#     :return:
-#     '''
-#     pass
+@admin.route('/info', methods=['GET'])
+@jwt_required
+def info_page(message):
+    """
+    用户信息页面
+    :return:
+    """
+    if message['code'] != Code.SUCCESS.value:
+        return jsonify(message)
+    username = request.values.get('username')
+    sys_user = SysUser.get_info(username)
+    token = Verificate.encode_auth_token(sys_user.id, sys_user.last_login.strftime("%Y-%m-%d %H:%M:%S"))
+    data = {
+        'info': {
+            'username': sys_user.username,
+            'password': sys_user.password,
+            'email': sys_user.email,
+            'avatar': sys_user.avatar
+        },
+        'token': token.decode()
+    }
+    return jsonify(response.return_message(data, Message.SUCCESS.value, Code.SUCCESS.value))
+
+
 #
 #
 # @jwt_required
