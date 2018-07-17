@@ -10,6 +10,7 @@ from application.auth.sys_authenticate import jwt_required
 from application.auth.sys_verificate import set_password, Verificate
 from application.constant import response
 from application.constant.constant import Code, Message
+from application.constant.util import CommonUtil
 from application.models.system_user import SysUser
 
 admin = Blueprint('sysadmin', __name__)
@@ -141,16 +142,17 @@ def register():
     else:
         return jsonify(response.return_message(None, Message.REGISTER_FAILED.value, Code.BAD_REQUEST.value))
 
-#
-#
-# @jwt_required
-# @admin.route('/upload', methods=['POST'])
-# def upload():
-#     '''
-#     上传图片
-#     :return: 返回图片链接
-#     '''
-#     pass
+
+@admin.route('/upload', methods=['POST'])
+@jwt_required
+def upload(message):
+    """
+    上传图片
+    :return: 返回图片链接
+    """
+    base64_str = request.values.get('img')
+    CommonUtil.handle_img(base64_str, 'avatar.webp')
+    return jsonify(message)
 #
 #
 # @jwt_required
