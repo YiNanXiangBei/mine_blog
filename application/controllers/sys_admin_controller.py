@@ -3,9 +3,8 @@
 # @time: 18-7-15 下午3:02
 # @filename: sys_admin_controller.py
 import base64
-import json
 
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, request, jsonify
 
 from application.auth.sys_authenticate import jwt_required
 from application.auth.sys_verificate import set_password, Verificate
