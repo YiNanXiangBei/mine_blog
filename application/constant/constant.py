@@ -29,6 +29,8 @@ class Message(Enum):
     CAN_NOT_GENERATE_TOKEN = '无法生成Token，请联系管理员'
     REGISTER_FAILED = '注册失败'
     REGISTER_SUCCESS = '注册成功'
+    UPLOAD_SUCCESS = '上传成功'
+    UPLOAD_FAILED = '上传失败'
 
 
 @unique

@@ -150,19 +150,58 @@ def upload(message):
     上传图片
     :return: 返回图片链接
     """
+    if message['code'] != Code.SUCCESS.value:
+        return jsonify(message)
     base64_str = request.values.get('img')
+    username = request.values.get('username')
     CommonUtil.handle_img(base64_str, 'avatar.webp')
-    return jsonify(message)
-#
-#
-# @jwt_required
-# @admin.route('/info', methods=['POST'])
-# def change_info():
-#     '''
-#     修改个人信息
-#     :return:
-#     '''
-#     pass
+    result = CommonUtil.upload_img('avatar.webp')
+    if result is not None:
+        result_avatar = SysUser.update_avatar(username, result)
+        if result_avatar is None:
+            return jsonify(response.return_message(
+                data={
+                    'image_url': result
+                },
+                msg=Message.UPLOAD_SUCCESS.value,
+                code=Code.SUCCESS.value
+            ))
+    return jsonify(response.return_message(
+        data=None,
+        msg=Message.UPLOAD_FAILED,
+        code=Code.BAD_REQUEST.value
+    ))
+
+
+@admin.route('/info', methods=['POST'])
+@jwt_required
+def change_info(message):
+    """
+    修改个人信息
+    :return:
+    """
+    if message['code'] != Code.SUCCESS.value:
+        return jsonify(message)
+    params = request.values.to_dict()
+    passwords = set_password(params['password'])
+    sys_user = SysUser(params['username'], passwords, params['email'], params['avatar'])
+    result = SysUser.update(sys_user)
+    if result is None:
+        # 为空说明存入数据库没有报错
+        sys_user = SysUser.get_info(params['username'])
+        token = Verificate.encode_auth_token(sys_user.id, sys_user.last_login.strftime("%Y-%m-%d %H:%M:%S"))
+        data = {
+            'info': {
+                'username': sys_user.username,
+                'password': sys_user.password,
+                'email': sys_user.email,
+                'avatar': sys_user.avatar
+            },
+            'token': token.decode()
+        }
+        return jsonify(response.return_message(data, Message.SUCCESS.value, Code.SUCCESS.value))
+    else:
+        return jsonify(response.return_message(None, Message.BAD_REQUEST.value, Code.BAD_REQUEST.value))
 #
 #
 # @jwt_required

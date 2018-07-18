@@ -13,7 +13,7 @@ class SysUser(db.Model):
     username = db.Column(db.String(45), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(45), nullable=False)
-    avatar = db.Column(db.String(50))
+    avatar = db.Column(db.String(100))
     last_login = db.Column(db.TIMESTAMP)
 
     def __init__(self, username, password, email, avatar=None):
@@ -66,9 +66,8 @@ class SysUser(db.Model):
         :return:
         """
         app.logger.info("update sys_user ....")
-        db.session.query(SysUser).filter_by(id=sys_user.id). \
-            update({'password': sys_user.password, 'email': sys_user.email,
-                    'avatar': sys_user.avatar, 'last_login': sys_user.last_login})
+        db.session.query(SysUser).filter_by(username=sys_user.username). \
+            update({'password': sys_user.password, 'email': sys_user.email})
         return session_commit()
 
     @staticmethod
@@ -82,6 +81,19 @@ class SysUser(db.Model):
         app.logger.info("update user_id, login_time ....")
         db.session.query(SysUser).filter_by(id=user_id). \
             update({'last_login': login_time})
+        return session_commit()
+
+    @staticmethod
+    def update_avatar(username, avatar):
+        """
+        更新头像
+        :param avatar:
+        :param username:
+        :return:
+        """
+        app.logger.info('update sys_user avatar ...')
+        db.session.query(SysUser).filter_by(username=username). \
+            update({'avatar': avatar})
         return session_commit()
 
 
