@@ -3,6 +3,9 @@
 # @time: 18-7-17 下午9:38
 # @filename: util.py
 import base64
+
+import os
+
 from application import app
 import time
 import re
@@ -43,7 +46,8 @@ class CommonUtil(object):
                     Body=fp.read(),
                     Key=remote_name
                 )
-        except IOError as e:
+            os.remove(image_path)
+        except Exception as e:
             app.logger.error('upload file to tencent error: {}'.format(e))
         if response is not None and response['ETag'] is not None:
             return remote_url

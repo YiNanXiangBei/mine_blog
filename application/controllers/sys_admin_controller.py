@@ -2,6 +2,7 @@
 # @author: yinan
 # @time: 18-7-15 下午3:02
 # @filename: sys_admin_controller.py
+import base64
 import json
 
 from flask import Blueprint, render_template, request, jsonify
@@ -202,7 +203,35 @@ def change_info(message):
         return jsonify(response.return_message(data, Message.SUCCESS.value, Code.SUCCESS.value))
     else:
         return jsonify(response.return_message(None, Message.BAD_REQUEST.value, Code.BAD_REQUEST.value))
-#
+
+
+@admin.route('/upload_image', methods=['POST'])
+@jwt_required
+def upload_image(message):
+    """
+    图片上传到腾讯cos
+    :return:
+    """
+    if message['code'] != Code.SUCCESS.value:
+        return jsonify(message)
+    base64_str = base64.b64encode(request.files['file'].read()).decode('utf-8')
+    filename = "files.webp"
+    CommonUtil.handle_img(base64_str, filename)
+    result = CommonUtil.upload_img(filename)
+    if result is not None:
+        return jsonify(response.return_message(
+            data={
+                'image_url': result
+            },
+            msg=Message.UPLOAD_SUCCESS.value,
+            code=Code.SUCCESS.value
+        ))
+    return jsonify(response.return_message(
+        data=None,
+        msg=Message.UPLOAD_FAILED,
+        code=Code.BAD_REQUEST.value
+    ))
+
 #
 # @jwt_required
 # @admin.route('/publish', methods=['POST'])
