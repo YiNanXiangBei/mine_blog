@@ -161,7 +161,8 @@ def upload(message):
         if result_avatar is None:
             return jsonify(response.return_message(
                 data={
-                    'image_url': result
+                    'image_url': result,
+                    'token': Verificate.encode_auth_token(message['data']['id'], message['data']['last_login']).decode()
                 },
                 msg=Message.UPLOAD_SUCCESS.value,
                 code=Code.SUCCESS.value
@@ -220,7 +221,8 @@ def upload_image(message):
     if result is not None:
         return jsonify(response.return_message(
             data={
-                'image_url': result
+                'image_url': result,
+                'token': Verificate.encode_auth_token(message['data']['id'], message['data']['last_login']).decode()
             },
             msg=Message.UPLOAD_SUCCESS.value,
             code=Code.SUCCESS.value

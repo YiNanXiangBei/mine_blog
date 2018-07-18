@@ -41,7 +41,8 @@ def jwt_required(func):
                             if users.last_login.strftime("%Y-%m-%d %H:%M:%S") == payload['data']['login_time']:
                                 return_user = {
                                     'id': users.id,
-                                    'username': users.username
+                                    'username': users.username,
+                                    'last_login': payload['data']['login_time']
                                 }
                                 app.logger.info("request success!")
                                 result = response.return_message(return_user, Message.SUCCESS.value, Code.SUCCESS.value)
