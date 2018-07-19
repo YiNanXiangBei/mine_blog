@@ -5,38 +5,35 @@
 from sqlalchemy.exc import SQLAlchemyError
 
 from application import db, app
-
-at = db.Table('at',
-              db.Column('article_id', db.BIGINT(20), db.ForeignKey('blog_article.id')),
-              db.Column('tag_id', db.BIGINT(20), db.ForeignKey('blog_tag.id'))
-              )
+from application.models.article import Article
+from application.models.tag_article import TagArticle
 
 
 class Tag(db.Model):
     __tablename__ = 'blog_tag'
-    id = db.Column(db.BIGINT(20), primary_key=True, unique=True, nullable=False, autoincrement=True)
+    id = db.Column(db.BigInteger, primary_key=True, unique=True, nullable=False, autoincrement=True)
     tag = db.Column(db.String(20), nullable=False, unique=True)
-    articles = db.relationship('Article', secondary=at,
+    # 在Article 中添加一个属性为tags,同时在Tag类中添加属性为articles
+    articles = db.relationship('Article', secondary="blog_tag_article",
                                backref=db.backref('tags', lazy='dynamic'),
                                lazy='dynamic')
 
-    def __init__(self, tag, articles=None):
+    def __init__(self, tag):
         self.tag = tag
-        self.articles = articles
 
     def __str__(self):
         return "<tag={}>".format(self.tag)
 
     @staticmethod
-    def save(tags):
+    def save(tag):
         """
         保存标签
-        :param tags:
+        :param tag:
         :return:
         """
         app.logger.info("add tag ....")
-        db.session.add(tags)
-        session_commit()
+        db.session.add(tag)
+        return session_commit()
 
     @staticmethod
     def get_all():

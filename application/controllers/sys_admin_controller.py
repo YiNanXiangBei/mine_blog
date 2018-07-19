@@ -3,6 +3,7 @@
 # @time: 18-7-15 下午3:02
 # @filename: sys_admin_controller.py
 import base64
+import json
 
 from flask import Blueprint, request, jsonify
 
@@ -12,6 +13,7 @@ from application.constant import response
 from application.constant.constant import Code, Message
 from application.constant.util import CommonUtil
 from application.models.system_user import SysUser
+from application.models.tag import Tag
 
 admin = Blueprint('sysadmin', __name__)
 
@@ -169,7 +171,7 @@ def upload(message):
             ))
     return jsonify(response.return_message(
         data=None,
-        msg=Message.UPLOAD_FAILED,
+        msg=Message.UPLOAD_FAILED.value,
         code=Code.BAD_REQUEST.value
     ))
 
@@ -233,6 +235,7 @@ def upload_image(message):
         code=Code.BAD_REQUEST.value
     ))
 
+
 #
 # @jwt_required
 # @admin.route('/publish', methods=['POST'])
@@ -252,13 +255,73 @@ def upload_image(message):
 #     :return:
 #     '''
 #     pass
-#
-#
-# @jwt_required
-# @admin.route('/add_tags', methods=['POST'])
-# def addtag():
-#     '''
-#     添加标签
-#     :return:
-#     '''
-#     pass
+
+@admin.route('/tags', methods=['GET'])
+@jwt_required
+def gettags(message):
+    """
+    获取标签
+    :param message:
+    :return:
+    """
+    if message['code'] != Code.SUCCESS.value:
+        return jsonify(message)
+    tags = Tag.get_all()
+    tags_value = [tag.tag for tag in tags]
+    return jsonify(response.return_message(
+        data={
+            'tags': tags_value,
+            'token': Verificate.encode_auth_token(message['data']['id'], message['data']['last_login']).decode()
+        },
+        msg=Message.SUCCESS.value,
+        code=Code.SUCCESS.value
+    ))
+
+
+@admin.route('/add_tags', methods=['POST'])
+@jwt_required
+def addtag(message):
+    """
+    添加标签
+    :return:
+    """
+    if message['code'] != Code.SUCCESS.value:
+        return jsonify(message)
+    new_tag = request.values.get('tag')
+    tag = Tag(new_tag)
+    result = Tag.save(tag)
+    if result is None:
+        return jsonify(response.return_message(
+            data={
+                'token': Verificate.encode_auth_token(message['data']['id'], message['data']['last_login']).decode()
+            },
+            msg=Message.SUCCESS.value,
+            code=Code.SUCCESS.value
+        ))
+    return jsonify(response.return_message(
+        data=None,
+        msg=Message.BAD_REQUEST.value,
+        code=Code.BAD_REQUEST.value
+    ))
+
+
+@admin.route('/blurry_tags', methods=['GET'])
+@jwt_required
+def get_by_tag(message):
+    """
+    模糊查询tag
+    :return:
+    """
+    if message['code'] != Code.SUCCESS.value:
+        return jsonify(message)
+    tag_value = request.values.get('tag')
+    tags = Tag.get_by_tag(tag_value)
+    tags_value = [tag.tag for tag in tags]
+    return jsonify(response.return_message(
+        data={
+            'tags': tags_value,
+            'token': Verificate.encode_auth_token(message['data']['id'], message['data']['last_login']).decode()
+        },
+        msg=Message.SUCCESS.value,
+        code=Code.SUCCESS.value
+    ))

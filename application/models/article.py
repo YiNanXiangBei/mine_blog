@@ -8,6 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from application import db, app
 from application.constant.constant import Constant
+from application.models.comment import Comment
 
 
 class Article(db.Model):
@@ -20,14 +21,13 @@ class Article(db.Model):
     date_publish = db.Column(db.TIMESTAMP, nullable=False)
     deleted = db.Column(db.String(1), nullable=False, default='0')
     # 在Comment中添加一个属性为article
-    comments = db.relationship('Comment', backref=db.backref('article', lazy='dynamic'), lazy='dynamic')
+    comments = db.relationship('Comment', backref=db.backref('article'))
 
-    def __init__(self, title, desc, content, date_publish, comments=None):
+    def __init__(self, title, desc, content, date_publish):
         self.title = title
         self.desc = desc
         self.content = content
         self.date_publish = date_publish
-        self.comments = comments
 
     def __str__(self):
         return '<Article{}, {}, {}, {}, {}>'. \
