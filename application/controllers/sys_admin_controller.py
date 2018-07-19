@@ -3,6 +3,7 @@
 # @time: 18-7-15 下午3:02
 # @filename: sys_admin_controller.py
 import base64
+import datetime
 import json
 
 from flask import Blueprint, request, jsonify
@@ -12,6 +13,7 @@ from application.auth.sys_verificate import set_password, Verificate
 from application.constant import response
 from application.constant.constant import Code, Message
 from application.constant.util import CommonUtil
+from application.models.article import Article
 from application.models.system_user import SysUser
 from application.models.tag import Tag
 
@@ -236,15 +238,57 @@ def upload_image(message):
     ))
 
 
-#
-# @jwt_required
-# @admin.route('/publish', methods=['POST'])
-# def publish():
-#     '''
-#     发布文章
-#     :return:
-#     '''
-#     pass
+@admin.route('/article', methods=['POST'])
+@jwt_required
+def post_publish(message):
+    """
+    发布文章
+    :return:
+    """
+    if message['code'] != Code.SUCCESS.value:
+        return jsonify(message)
+    results = request.values.to_dict()
+    article = Article(results['title'], results['desc'], results['content'], datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    tag_ids = Tag.get_id_by_tag(tuple(eval(results['tags'])))
+    Article.insert(article, tag_ids)
+    # 将前台传来的字符串，转换成列表，再转换成元组
+
+    return jsonify(message)
+
+
+@admin.route('/article', methods=['DELETE'])
+@jwt_required
+def delete_publish(message):
+    """
+    删除文章
+    :return:
+    """
+    if message['code'] != Code.SUCCESS.value:
+        return jsonify(message)
+
+
+@admin.route('/article', methods=['PUT'])
+@jwt_required
+def put_publish(message):
+    """
+    修改文章
+    :return:
+    """
+    if message['code'] != Code.SUCCESS.value:
+        return jsonify(message)
+
+
+@admin.route('/article', methods=['GET'])
+@jwt_required
+def get_publish(message):
+    """
+    查询文章
+    :return:
+    """
+    if message['code'] != Code.SUCCESS.value:
+        return jsonify(message)
+
+
 #
 #
 # @jwt_required

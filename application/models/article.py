@@ -59,10 +59,28 @@ class Article(db.Model):
         return article
 
     @staticmethod
-    def insert(article):
+    def insert(article, tag_ids):
+        """
+        插入文章
+        :param article: 文章
+        :param tag_ids: 标签id
+        :return:
+        """
         app.logger.info("insert article ....")
         db.session.add(article)
-        session_commit()
+        article_id = Article.get_id_by_title(article.title).id
+        return session_commit()
+
+    @staticmethod
+    def get_id_by_title(title):
+        """
+        通过文章标题获取id
+        :param title:
+        :return:
+        """
+        app.logger.info("get id by title ...")
+        article = db.session.query(Article).filter_by(title=title).first()
+        return article
 
     @staticmethod
     def delete(article_id):
@@ -76,7 +94,7 @@ class Article(db.Model):
         now = now.strftime("%Y-%m-%d %H:%M:%S")
         db.session.query(Article).filter_by(id=article_id). \
             update({'deleted': Constant.DELETED.value, 'date_publish': now})
-        session_commit()
+        return session_commit()
 
     @staticmethod
     def update(article):
@@ -89,7 +107,7 @@ class Article(db.Model):
         db.session.query(Article).filter_by(id=article.id). \
             update({'title': article.title, 'desc': article.desc, 'content': article.content,
                     'date_publish': article.date_publish})
-        session_commit()
+        return session_commit()
 
 
 def session_commit():

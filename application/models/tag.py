@@ -54,6 +54,17 @@ class Tag(db.Model):
         value = '{}%'.format(tag)
         return db.session.query(Tag).filter(Tag.tag.like(value)).all()
 
+    @staticmethod
+    def get_id_by_tag(tags):
+        """
+        依据tag名称查询tag的id
+        :param tags:
+        :return:
+        """
+        app.logger.info("get id by tag ...")
+        list_tag = db.session.query(Tag).filter(Tag.tag.in_(tags)).all()
+        return [result.tag for result in list_tag]
+
 
 def session_commit():
     """
