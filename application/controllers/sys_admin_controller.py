@@ -433,7 +433,7 @@ def get_editor_article(message):
             "id": item.id,
             "title": item.title,
             "tags": tags,
-            "datetime": item.date_publish
+            "datetime": item.date_publish.strftime("%Y-%m-%d")
         }
         articles.append(article)
     return jsonify(response.return_message(
