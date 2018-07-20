@@ -296,6 +296,31 @@ def put_publish(message):
     """
     if message['code'] != Code.SUCCESS.value:
         return jsonify(message)
+    results = request.values.to_dict()
+    if Article.get_by_id(results['article_id']) is None:
+        return jsonify(response.return_message(
+            data={
+                "token": Verificate.encode_auth_token(message['data']['id'], message['data']['last_login']).decode()
+            },
+            msg=Message.ARTICLE_NOT_EXISTS.value,
+            code=Code.NOT_FOUND.value
+        ))
+    article = Article(results['title'], results['desc'], results['content'], datetime.datetime.now().
+                      strftime("%Y-%m-%d %H:%M:%S"))
+    article.id = results['article_id']
+    if Article.update(article) is None:
+        return jsonify(response.return_message(
+            data={
+                "token": Verificate.encode_auth_token(message['data']['id'], message['data']['last_login']).decode()
+            },
+            msg=Message.SUCCESS.value,
+            code=Code.SUCCESS.value
+        ))
+    return jsonify(response.return_message(
+        data=None,
+        msg=Message.BAD_REQUEST.value,
+        code=Code.BAD_REQUEST.value
+    ))
 
 
 @admin.route('/article', methods=['GET'])
@@ -385,6 +410,37 @@ def get_by_tag(message):
         data={
             'tags': tags_value,
             'token': Verificate.encode_auth_token(message['data']['id'], message['data']['last_login']).decode()
+        },
+        msg=Message.SUCCESS.value,
+        code=Code.SUCCESS.value
+    ))
+
+
+@admin.route('/oldArticles', methods=['GET'])
+@jwt_required
+def get_editor_article(message):
+    if message['code'] != Code.SUCCESS.value:
+        return jsonify(message)
+    params = request.values.to_dict()
+    start_time = params['beginTime']
+    end_time = params['endTime']
+    page_no = params['pageNo']
+    result = Article.get_all_by_date(start_time, end_time, page_no)
+    articles = []
+    for item in result.items:
+        tags = [tag.tag for tag in item.tags.all()]
+        article = {
+            "id": item.id,
+            "title": item.title,
+            "tags": tags,
+            "datetime": item.date_publish
+        }
+        articles.append(article)
+    return jsonify(response.return_message(
+        data={
+            "articles": articles,
+            "token": Verificate.encode_auth_token(message['data']['id'], message['data']['last_login']).decode(),
+            "total": result.total
         },
         msg=Message.SUCCESS.value,
         code=Code.SUCCESS.value

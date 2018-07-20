@@ -49,6 +49,22 @@ class Article(db.Model):
         return articles
 
     @staticmethod
+    def get_all_by_date(start_time, end_time, page_no, page_size=10):
+        """
+        依据日期进行分页查询
+        :param start_time: 开始日期
+        :param end_time: 结束日期
+        :param page_no: 页号
+        :param page_size: 总页数
+        :return:
+        """
+        app.logger.info('get article by paginate and datetime ....')
+        articles = db.session.query(Article).filter(Article.deleted == Constant.UN_DELETED.value,
+                                                    Article.date_publish.between(start_time, end_time)).order_by(Article.date_publish.desc()).paginate(
+            int(page_no), int(page_size), False)
+        return articles
+
+    @staticmethod
     def get_by_id(article_id):
         """
         依据文章id查询文章以及分页查询文章的评论
@@ -129,12 +145,3 @@ def session_commit():
         db.session.rollback()
         reason = str(e)
         return reason
-
-
-if __name__ == '__main__':
-    # now = datetime.datetime.now()
-    # now = now.strftime("%Y-%m-%d %H:%M:%S")
-    # article = Article('title', 'desc', 'content', now)
-    Article.delete(3)
-    result = Article.get_all(1)
-    print(result.items)

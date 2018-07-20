@@ -32,6 +32,7 @@ class Message(Enum):
     UPLOAD_SUCCESS = '上传成功'
     UPLOAD_FAILED = '上传失败'
     TITLE_EXISTS = '文章标题已经存在'
+    ARTICLE_NOT_EXISTS = '文章不存在'
 
 
 @unique
