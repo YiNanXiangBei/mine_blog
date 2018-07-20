@@ -63,7 +63,7 @@ class Tag(db.Model):
         """
         app.logger.info("get id by tag ...")
         list_tag = db.session.query(Tag).filter(Tag.tag.in_(tags)).all()
-        return [result.tag for result in list_tag]
+        return [result.id for result in list_tag]
 
 
 def session_commit():

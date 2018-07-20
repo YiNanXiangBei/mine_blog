@@ -31,6 +31,7 @@ class Message(Enum):
     REGISTER_SUCCESS = '注册成功'
     UPLOAD_SUCCESS = '上传成功'
     UPLOAD_FAILED = '上传失败'
+    TITLE_EXISTS = '文章标题已经存在'
 
 
 @unique
@@ -43,3 +44,4 @@ class Code(Enum):
     FORBIDDEN = 403
     REDIRECT = 301
     UNAUTHORIZED = 401
+    TITLE_EXISTS = 417

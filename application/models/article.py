@@ -9,6 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from application import db, app
 from application.constant.constant import Constant
 from application.models.comment import Comment
+from application.models.tag_article import TagArticle
 
 
 class Article(db.Model):
@@ -59,17 +60,22 @@ class Article(db.Model):
         return article
 
     @staticmethod
-    def insert(article, tag_ids):
+    def insert(article, tags_id):
         """
         插入文章
         :param article: 文章
-        :param tag_ids: 标签id
+        :param tags_id: 标签id
         :return:
         """
         app.logger.info("insert article ....")
         db.session.add(article)
         article_id = Article.get_id_by_title(article.title).id
-        return session_commit()
+        for tag_id in tags_id:
+            tag_article = TagArticle(tag_id, article_id)
+            TagArticle.save(tag_article)
+        if TagArticle.session_commit() is None:
+            return session_commit()
+        db.session.rollback()
 
     @staticmethod
     def get_id_by_title(title):

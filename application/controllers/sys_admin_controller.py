@@ -248,12 +248,32 @@ def post_publish(message):
     if message['code'] != Code.SUCCESS.value:
         return jsonify(message)
     results = request.values.to_dict()
-    article = Article(results['title'], results['desc'], results['content'], datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    if Article.get_id_by_title(results['title']) is not None:
+        return jsonify(response.return_message(
+            data={
+                "token": Verificate.encode_auth_token(message['data']['id'], message['data']['last_login']).decode()
+            },
+            msg=Message.TITLE_EXISTS.value,
+            code=Code.TITLE_EXISTS.value
+        ))
+    article = Article(results['title'], results['desc'], results['content'], datetime.datetime.now().
+                      strftime("%Y-%m-%d %H:%M:%S"))
+    # 将前台传来的字符串，转换成列表，再转换成元组,然后通过标签查询id
     tag_ids = Tag.get_id_by_tag(tuple(eval(results['tags'])))
-    Article.insert(article, tag_ids)
-    # 将前台传来的字符串，转换成列表，再转换成元组
-
-    return jsonify(message)
+    result = Article.insert(article, tag_ids)
+    if result is None:
+        return jsonify(response.return_message(
+            data={
+                "token": Verificate.encode_auth_token(message['data']['id'], message['data']['last_login']).decode()
+            },
+            msg=Message.SUCCESS.value,
+            code=Code.SUCCESS.value
+        ))
+    return jsonify(response.return_message(
+        data=None,
+        msg=Message.BAD_REQUEST.value,
+        code=Code.BAD_REQUEST.value
+    ))
 
 
 @admin.route('/article', methods=['DELETE'])
