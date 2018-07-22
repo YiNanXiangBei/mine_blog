@@ -285,6 +285,21 @@ def delete_publish(message):
     """
     if message['code'] != Code.SUCCESS.value:
         return jsonify(message)
+    article_id = request.values.get('article_id')
+    result = Article.delete(article_id)
+    if result is None:
+        return jsonify(response.return_message(
+            data={
+                'token': Verificate.encode_auth_token(message['data']['id'], message['data']['last_login']).decode()
+            },
+            msg=Message.DELETE_SUCCESS.value,
+            code=Code.SUCCESS.value
+        ))
+    return jsonify(response.return_message(
+        data=None,
+        msg=Message.DELETE_FAILED.value,
+        code=Code.BAD_REQUEST.value
+    ))
 
 
 @admin.route('/article', methods=['PUT'])
