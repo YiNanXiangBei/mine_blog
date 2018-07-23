@@ -323,7 +323,10 @@ def put_publish(message):
     article = Article(results['title'], results['desc'], results['content'], datetime.datetime.now().
                       strftime("%Y-%m-%d %H:%M:%S"))
     article.id = results['article_id']
-    if Article.update(article) is None:
+    # 将前台传来的字符串，转换成列表，再转换成元组,然后通过标签查询id
+    tag_ids = Tag.get_id_by_tag(tuple(eval(results['tags'])))
+
+    if Article.update(article, tag_ids) is None:
         return jsonify(response.return_message(
             data={
                 "token": Verificate.encode_auth_token(message['data']['id'], message['data']['last_login']).decode()
@@ -347,6 +350,30 @@ def get_publish(message):
     """
     if message['code'] != Code.SUCCESS.value:
         return jsonify(message)
+    article_id = request.values.get("article_id")
+    article = Article.get_by_id(article_id)
+    if article:
+        tags = [tag.tag for tag in article.tags.all()]
+        result = {
+            "id": article.id,
+            "title": article.title,
+            "tags": tags,
+            "desc": article.desc,
+            "content": article.content
+        }
+        return jsonify(response.return_message(
+            data={
+                "article": result,
+                "token": Verificate.encode_auth_token(message['data']['id'], message['data']['last_login']).decode()
+            },
+            msg=Message.SUCCESS.value,
+            code=Code.SUCCESS.value
+        ))
+    return jsonify(response.return_message(
+        data=None,
+        msg=Message.BAD_REQUEST.value,
+        code=Code.BAD_REQUEST.value
+    ))
 
 
 #

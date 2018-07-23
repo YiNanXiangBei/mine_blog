@@ -28,6 +28,10 @@ class TagArticle(db.Model):
         db.session.add(tag_article)
 
     @staticmethod
+    def delete(article_id):
+        db.session.query(TagArticle).filter_by(article_id=article_id).delete()
+
+    @staticmethod
     def session_commit():
         """
         事务提交，如果失败则回滚

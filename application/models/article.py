@@ -119,17 +119,26 @@ class Article(db.Model):
         return session_commit()
 
     @staticmethod
-    def update(article):
+    def update(article, tags_id):
         """
         更新文章
-        :param article:文章实例
+        :param article: 文章信息
+        :param tags_id: 标签id
         :return:
         """
         app.logger.info("update article ....")
-        db.session.query(Article).filter_by(id=article.id). \
-            update({'title': article.title, 'desc': article.desc, 'content': article.content,
-                    'date_publish': article.date_publish})
-        return session_commit()
+        # 先删除 tag_article表数据
+        TagArticle.delete(article.id)
+        # 再插入新的数据
+        for tag_id in tags_id:
+            tag_article = TagArticle(tag_id, article.id)
+            TagArticle.save(tag_article)
+        if TagArticle.session_commit() is None:
+            db.session.query(Article).filter_by(id=article.id). \
+                update({'title': article.title, 'desc': article.desc, 'content': article.content,
+                        'date_publish': article.date_publish})
+            return session_commit()
+        db.session.rollback()
 
 
 def session_commit():
