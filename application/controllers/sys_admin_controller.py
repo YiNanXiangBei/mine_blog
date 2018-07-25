@@ -188,7 +188,7 @@ def change_info(message):
     if message['code'] != Code.SUCCESS.value:
         return jsonify(message)
     params = request.values.to_dict()
-    passwords = set_password(params['password'])
+    passwords = None if params['password'] == '' else set_password(params['password'])
     sys_user = SysUser(params['username'], passwords, params['email'], params['avatar'])
     result = SysUser.update(sys_user)
     if result is None:

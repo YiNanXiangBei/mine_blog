@@ -66,8 +66,12 @@ class SysUser(db.Model):
         :return:
         """
         app.logger.info("update sys_user ....")
-        db.session.query(SysUser).filter_by(username=sys_user.username). \
-            update({'password': sys_user.password, 'email': sys_user.email})
+        if sys_user.password is None:
+            db.session.query(SysUser).filter_by(username=sys_user.username). \
+                update({'email': sys_user.email})
+        else:
+            db.session.query(SysUser).filter_by(username=sys_user.username). \
+                update({'password': sys_user.password, 'email': sys_user.email})
         return session_commit()
 
     @staticmethod
