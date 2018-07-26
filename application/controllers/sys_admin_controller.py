@@ -487,3 +487,15 @@ def get_editor_article(message):
         msg=Message.SUCCESS.value,
         code=Code.SUCCESS.value
     ))
+
+
+@admin.route('/verify', methods=['POST'])
+def verify():
+    params = request.values.to_dict()
+    enter_username = params['username']
+    enter_pwd = params['password']
+    return jsonify(response.return_message(
+        data="test",
+        msg=Message.SUCCESS.value,
+        code=Code.SUCCESS.value
+    ))
