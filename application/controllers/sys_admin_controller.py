@@ -527,4 +527,17 @@ def verify():
             code=Code.BAD_REQUEST.value
         ))
 
-
+@admin.route('/resetPwd', methods=['PUT'])
+def reset_pwd():
+    """
+       重置密码
+       :return:
+       """
+    params = request.values.to_dict()
+    passwords = None if params['password'] == '' else set_password(params['password'])
+    sys_user = SysUser(params['username'], passwords, params['email'], params['avatar'])
+    result = SysUser.update(sys_user)
+    if result is None:
+        return jsonify(response.return_message(None, Message.SUCCESS.value, Code.SUCCESS.value))
+    else:
+        return jsonify(response.return_message(None, Message.BAD_REQUEST.value, Code.BAD_REQUEST.value))

@@ -108,9 +108,9 @@ class CommonUtil(object):
             smtp.connect(smtp_server)  # 连接发送邮件的服务器
             smtp.login(username, password)  # 登录服务器
             smtp.sendmail(sender, receiver, message.as_string())  # 填入邮件的相关信息并发送
-            logger.info("邮件发送成功！！！")
-            print("邮件发送成功！！！")
+            app.logger.info("邮件发送成功！！！")
+            # print("邮件发送成功！！！")
             smtp.quit()
         except smtplib.SMTPException:
-            logger.info("邮件发送失败！！！")
-            print("邮件发送失败！！！")
+            app.logger.info("邮件发送失败！！！")
+            # print("邮件发送失败！！！")
