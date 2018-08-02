@@ -21,21 +21,21 @@ from email.header import Header  # 用来设置邮件头和邮件主题
 from email.mime.text import MIMEText  # 发送正文只包含简单文本的邮件，引入MIMEText即可
 import logging
 
-logger = logging.getLogger("email_log")
-logger.setLevel(logging.DEBUG)
-
-# 输出到屏幕
-ch = logging.StreamHandler()
-ch.setLevel(logging.WARNING)
-# 输出到文件
-fh = logging.FileHandler("log.log")
-fh.setLevel(logging.INFO)
-# 设置日志格式
-fomatter = logging.Formatter('%(asctime)s -%(name)s-%(levelname)s-%(module)s:%(message)s')
-ch.setFormatter(fomatter)
-fh.setFormatter(fomatter)
-logger.addHandler(ch)
-logger.addHandler(fh)
+# logger = logging.getLogger("email_log")
+# logger.setLevel(logging.DEBUG)
+#
+# # 输出到屏幕
+# ch = logging.StreamHandler()
+# ch.setLevel(logging.WARNING)
+# # 输出到文件
+# fh = logging.FileHandler("log.log")
+# fh.setLevel(logging.INFO)
+# # 设置日志格式
+# fomatter = logging.Formatter('%(asctime)s -%(name)s-%(levelname)s-%(module)s:%(message)s')
+# ch.setFormatter(fomatter)
+# fh.setFormatter(fomatter)
+# logger.addHandler(ch)
+# logger.addHandler(fh)
 
 
 class CommonUtil(object):
@@ -111,6 +111,7 @@ class CommonUtil(object):
             app.logger.info("邮件发送成功！！！")
             # print("邮件发送成功！！！")
             smtp.quit()
-        except smtplib.SMTPException:
+        except smtplib.SMTPException as e:
             app.logger.info("邮件发送失败！！！")
+            return str(e)
             # print("邮件发送失败！！！")
