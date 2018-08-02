@@ -2,6 +2,7 @@
 # @author: yinan
 # @time: 18-7-3 下午1:35
 # @filename: system_user.py
+from sqlalchemy import exists
 from sqlalchemy.exc import SQLAlchemyError
 
 from application import db, app
@@ -95,6 +96,20 @@ class SysUser(db.Model):
         db.session.query(SysUser).filter_by(username=username). \
             update({'avatar': avatar})
         return session_commit()
+
+    @staticmethod
+    def verify(username, email):
+        """
+        验证用户名、密码
+        :param username:
+        :param email:
+        :return:
+        """
+        app.logger.info("verify by username and email ....")
+        return db.session.query(exists().
+                                where(SysUser.email == email).where(SysUser.username == username)).scalar()
+        # verify_info = db.session.query(SysUser).filter_by(username=username,email=email).first()
+        # return verify_info
 
 
 def session_commit():

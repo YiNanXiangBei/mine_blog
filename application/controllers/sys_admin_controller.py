@@ -3,6 +3,8 @@
 # @time: 18-7-15 下午3:02
 # @filename: sys_admin_controller.py
 import base64
+import re
+import time
 import datetime
 import json
 
@@ -10,9 +12,10 @@ from flask import Blueprint, request, jsonify
 
 from application.auth.sys_authenticate import jwt_required
 from application.auth.sys_verificate import set_password, Verificate
-from application.constant import response
+from application.constant import response, util
 from application.constant.constant import Code, Message
 from application.constant.util import CommonUtil
+from application.models import system_user
 from application.models.article import Article
 from application.models.system_user import SysUser
 from application.models.tag import Tag
@@ -487,3 +490,41 @@ def get_editor_article(message):
         msg=Message.SUCCESS.value,
         code=Code.SUCCESS.value
     ))
+
+
+@admin.route('/verify', methods=['POST'])
+def verify():
+    params = request.values.to_dict()
+    enter_username = params['username']
+    enter_email = params['email']
+
+    if SysUser.verify(enter_username, enter_email) is True:
+        # 获取毫秒级时间戳
+        t = time.time()
+        ms_t = int(round(t * 1000))
+        # 将邮箱前两位设为*
+        '''
+            re.sub()有5个参数，三个必选参数pattern,repl,string；两个可选参数count,flags
+            re.sub(pattern,repl,string,count,flags)
+            pattern:表示正则表达式中的模式字符串；
+            repl:被替换的字符串，或者是一个方法（既可以是字符串，也可以是函数）；
+            当repl为字符串的时候，也就是需要 将string中与pattern匹配的字符串都替换成repl
+            当repl为方法的时候，就必须是一个带有一个参数，且参数为MatchObject类型的方法，该方法需要返回一个字符串。 
+            string:要被处理的，要被替换的字符串；
+            count:指的是最大的可以被替换的匹配到的字符串的个数，默认为0，就是所有匹配到的字符串。 
+            flgas:标志位
+         '''
+        reset_email1 = re.sub(enter_email[:2], '**', enter_email)
+
+        # .encode() ：用来转换成bytes数组
+        sid = base64.b64encode((enter_username + str(ms_t) + reset_email1).encode()).decode()
+        print(sid)
+        return CommonUtil.send_email('2043281367@qq.com', sid)
+    else:
+        return jsonify(response.return_message(
+            data="test",
+            msg=Message.VERIFY_FAILED.value,
+            code=Code.BAD_REQUEST.value
+        ))
+
+
