@@ -76,30 +76,36 @@ class CommonUtil(object):
             return None
 
     @staticmethod
-    def sendEmail(receiver):
+    def send_email(receiver, sid):
         mail_config = configs.EMAIL_OAUTH
         sender = mail_config.get('sender')
         # receiver = '2043281367@qq.com'
 
         # 所使用的用来发送邮件的SMTP服务器
-        smtpServer = mail_config.get('smtpServer')
+        smtp_server = mail_config.get('smtpServer')
 
         # 发送邮箱的用户名和授权码（不是登录邮箱的密码）
         username = mail_config.get('username')
         password = mail_config.get('password')
 
-        mail_title = '2018.7.23邮件测试'
-        mail_body = '邮件测试'
+        mail_title = '找回密码'
+        mail_body = '''
+        <h3>亲爱的用户：</h3>
+        <p>请您在24小时之内点击下面的链接修改登录密码</p>
+        <p><a href="http://127.0.0.1:8080/sysadmin/password_change?sid={}">http://127.0.0.1:8080/sysadmin/password_change?sid={}</a></p>
+        <p>若链接点击无效，请复制链接到浏览器地址栏打开</p>
+        <p>若您未申请密码修改，请忽略此邮件</p>
+        '''
 
         # 创建一个实例
-        message = MIMEText(mail_body, 'plain', 'utf-8')  # 邮件正文
+        message = MIMEText(mail_body.format(sid,sid), 'html', 'utf-8')  # 邮件正文
         message['From'] = sender  # 邮件上显示的发件人
         message['To'] = receiver  # 邮件上显示的收件人
         message['Subject'] = Header(mail_title, 'utf-8')  # 邮件主题
 
         try:
             smtp = smtplib.SMTP()  # 创建一个连接
-            smtp.connect(smtpServer)  # 连接发送邮件的服务器
+            smtp.connect(smtp_server)  # 连接发送邮件的服务器
             smtp.login(username, password)  # 登录服务器
             smtp.sendmail(sender, receiver, message.as_string())  # 填入邮件的相关信息并发送
             logger.info("邮件发送成功！！！")
