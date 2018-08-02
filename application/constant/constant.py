@@ -35,6 +35,8 @@ class Message(Enum):
     ARTICLE_NOT_EXISTS = '文章不存在'
     DELETE_SUCCESS = '删除成功'
     DELETE_FAILED = '删除失败'
+    VERIFY_SUCCEED = '用户信息验证成功'
+    VERIFY_FAILED = '用户信息验证失败'
 
 
 @unique
