@@ -6,16 +6,14 @@ import base64
 import re
 import time
 import datetime
-import json
 
 from flask import Blueprint, request, jsonify
 
 from application.auth.sys_authenticate import jwt_required
 from application.auth.sys_verificate import set_password, Verificate
-from application.constant import response, util
+from application.constant import response
 from application.constant.constant import Code, Message
 from application.constant.util import CommonUtil
-from application.models import system_user
 from application.models.article import Article
 from application.models.system_user import SysUser
 from application.models.tag import Tag
@@ -527,12 +525,13 @@ def verify():
             code=Code.BAD_REQUEST.value
         ))
 
+
 @admin.route('/resetPwd', methods=['PUT'])
 def reset_pwd():
     """
        重置密码
        :return:
-       """
+    """
     params = request.values.to_dict()
     passwords = None if params['password'] == '' else set_password(params['password'])
     sys_user = SysUser(params['username'], passwords, params['email'], params['avatar'])
