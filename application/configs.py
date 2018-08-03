@@ -19,3 +19,13 @@ TENCENT_OAUTH = {
     'region': '',
     'bucket': ''
 }
+EMAIL_OAUTH = {
+    # 发件人
+    'sender': '',
+    # 所使用的用来发送邮件的SMTP服务器
+    'smtpServer': '',
+    # 发送邮箱的用户名和授权码（不是登录邮箱的密码）
+    'username': '',
+    'password': ''
+
+}
