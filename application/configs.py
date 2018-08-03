@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:root@127.0.0.1:3306/mine_blog"
+SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:ws9949021044@127.0.0.1:3306/mine_blog"
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 JWT_SECRET_KEY = 'jwt_secret'
 JWT_AUTH_URL_RULE = '/api/v1/auth'
@@ -14,18 +14,18 @@ GITHUB_OAUTH = {
     'USER_MESSAGE_PATH': 'https://api.github.com/user',
 }
 TENCENT_OAUTH = {
-    'secret_id': '',
-    'secret_key': '',
-    'region': '',
-    'bucket': ''
+    'secret_id': 'AKIDKUQ7Zn7Y6PSHsEIFuKWTBeuugDWap4Vh',
+    'secret_key': '6ybz82iANL5apoY2HH1WmmaAVbS6VgcJ',
+    'region': 'ap-guangzhou',
+    'bucket': 'mine-blog-1252100560'
 }
 EMAIL_OAUTH = {
     # 发件人
-    'sender': '',
+    'sender': 'demoshuwang@163.com',
     # 所使用的用来发送邮件的SMTP服务器
-    'smtpServer': '',
+    'smtpServer': 'smtp.163.com',
     # 发送邮箱的用户名和授权码（不是登录邮箱的密码）
-    'username': '',
-    'password': ''
+    'username': 'demoshuwang@163.com',
+    'password': 'Ws99490210'
 
 }
