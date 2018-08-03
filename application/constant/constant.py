@@ -37,6 +37,8 @@ class Message(Enum):
     DELETE_FAILED = '删除失败'
     VERIFY_SUCCEED = '用户信息验证成功'
     VERIFY_FAILED = '用户信息验证失败'
+    EMAIL_SEND_FAILED = '邮件发送失败'
+    EMAIL_SEND_SUCCESS = '邮件发送成功'
 
 
 @unique
