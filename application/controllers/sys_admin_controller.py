@@ -12,7 +12,7 @@ from flask import Blueprint, request, jsonify
 from application.auth.sys_authenticate import jwt_required
 from application.auth.sys_verificate import set_password, Verificate
 from application.constant import response
-from application.constant.constant import Code, Message
+from application.constant.constant import Code, Message, Constant
 from application.constant.util import CommonUtil
 from application.models.article import Article
 from application.models.system_user import SysUser
@@ -519,11 +519,11 @@ def verify():
         reset_email1 = re.sub(enter_email[:2], '**', enter_email)
 
         # 整合参数格式
-        encrypt_params = 'username={}&email={}&timestamp={}'.format(enter_email, str(ms_t), reset_email1)
+        encrypt_params = 'username={}&email={}&timestamp={}'.format(enter_username, reset_email1, str(ms_t))
         # .encode() ：用来转换成bytes数组
         sid = base64.b64encode(encrypt_params.encode()).decode()
         # 接收发送返回消息
-        send_result = CommonUtil.send_email(enter_username, sid)
+        send_result = CommonUtil.send_email(enter_email, sid)
         # 如果发送失败，则会返回失败原因
         if send_result:
             return jsonify(response.return_message(
@@ -553,10 +553,12 @@ def reset_pwd():
     :return:
     """
     params = request.values.to_dict()
-    passwords = None if params['password'] == '' else set_password(params['password'])
-    sys_user = SysUser(params['username'], passwords, params['email'], None)
-    result = SysUser.update(sys_user)
+    password = params['password']
+    if password is None or len(password) < Constant.PASSWORD_LENGTH.value:
+        return jsonify(response.return_message(None, Message.PASSWORD_LENGTH_LESS_THAN.value, Code.BAD_REQUEST.value))
+    passwords = None if password == '' else set_password(password)
+    result = SysUser.reset_password(params['username'], passwords)
     if result is None:
         return jsonify(response.return_message(None, Message.SUCCESS.value, Code.SUCCESS.value))
     else:
-        return jsonify(response.return_message(None, Message.BAD_REQUEST.value, Code.BAD_REQUEST.value))
+        return jsonify(response.return_message(None, Message.RESET_PASSWORD_FAILED.value, Code.BAD_REQUEST.value))

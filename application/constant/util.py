@@ -19,7 +19,7 @@ from application import configs
 import smtplib
 from email.header import Header  # 用来设置邮件头和邮件主题
 from email.mime.text import MIMEText  # 发送正文只包含简单文本的邮件，引入MIMEText即可
-import logging
+import rsa
 
 # logger = logging.getLogger("email_log")
 # logger.setLevel(logging.DEBUG)
@@ -36,6 +36,7 @@ import logging
 # fh.setFormatter(fomatter)
 # logger.addHandler(ch)
 # logger.addHandler(fh)
+from application.configs import ENCRYPT_KEY
 
 
 class CommonUtil(object):
@@ -115,3 +116,26 @@ class CommonUtil(object):
             app.logger.info("邮件发送失败！！！")
             return str(e)
             # print("邮件发送失败！！！")
+
+    @staticmethod
+    def encrypt(params):
+        """
+        数据加密
+        :param params:
+        :return:
+        """
+        signature = rsa.sign(params.encode(), ENCRYPT_KEY.get('public_key'), 'SHA-1')
+        data = {
+            'params': params,
+            'signature': signature
+        }
+        return rsa.encrypt(str(data).encode(), ENCRYPT_KEY.get('private_key'))
+
+    @staticmethod
+    def decrypt(params):
+        """
+        数据解密
+        :param params:
+        :return:
+        """
+        return rsa.decrypt(params, ENCRYPT_KEY.get('private_key'))
