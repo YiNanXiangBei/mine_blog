@@ -7,3 +7,4 @@
 .idea/
 
 /log.log
+/application/configs.py
