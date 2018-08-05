@@ -6,6 +6,10 @@ import base64
 
 import os
 
+from Crypto import Random
+from Crypto.Cipher import AES
+from rsa import PrivateKey
+
 from application import app
 import time
 import re
@@ -132,10 +136,43 @@ class CommonUtil(object):
         return rsa.encrypt(str(data).encode(), ENCRYPT_KEY.get('private_key'))
 
     @staticmethod
-    def decrypt(params):
+    def rsa_decrypt(private_key, params):
         """
-        数据解密
+        数据解密 最大长度117
+        :param private_key:
         :param params:
         :return:
         """
-        return rsa.decrypt(params, ENCRYPT_KEY.get('private_key'))
+        _pri = rsa.PrivateKey._load_pkcs1_pem(private_key)
+        biz_content = base64.b64decode(params)
+        # 1024bit key
+        default_length = 256
+        len_content = len(biz_content)
+        if len_content <= default_length:
+            return rsa.decrypt(bytes.fromhex(biz_content.decode()), _pri).decode()
+        offset = 0
+        params_lst = []
+        while len_content - offset > 0:
+            if len_content - offset > default_length:
+                params_lst.append(
+                    rsa.decrypt(bytes.fromhex(biz_content[offset: offset + default_length].decode()), _pri).decode())
+            else:
+                params_lst.append(rsa.decrypt(bytes.fromhex(biz_content[offset:].decode()), _pri).decode())
+            offset += default_length
+        target = ''.join(params_lst)
+        return target
+
+    @staticmethod
+    def aes_decrypt(key, params):
+        """
+        aes解密
+        :param key: 字符串类型密钥
+        :param params: 十六进制的字符串，需要转为二进制字节数组
+        :return:
+        """
+        # 解密的话要用key和iv生成新的AES对象
+        params = bytes.fromhex(params)
+        my_decrypt = AES.new(key, AES.MODE_CFB, params[:16])
+        # 使用新生成的AES对象，将加密的密文解密
+        decrypt_text = my_decrypt.decrypt(params[16:])
+        return decrypt_text.decode()
