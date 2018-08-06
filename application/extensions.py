@@ -108,22 +108,34 @@ def aes_encrypt():
         'tag_id': '2132321'
     }
     data = str(data)
+    pad = lambda str: str + (16 - len(str) % 16) * chr(16 - len(str) % 16)
+    data = pad(data)
+    print(data)
     # 密钥key 长度必须为16（AES-128）、24（AES-192）、或32（AES-256）Bytes 长度.
     # 目前AES-128足够用
-    key = '123rwr23sqwe43dr'
+    key = '4McBQHckjLLd1Pzr'
     # 生成长度等于AES块大小的不可重复的密钥向量
     iv = Random.new().read(AES.block_size)
+    print(b2a_hex(iv))
     # 使用key和iv初始化AES对象, 使用MODE_CFB模式
     mycipher = AES.new(key, AES.MODE_CFB, iv)
     # 加密的明文长度必须为16的倍数，如果长度不为16的倍数，则需要补足为16的倍数
     # 将iv（密钥向量）加到加密的密文开头，一起传输
     ciphertext = iv + mycipher.encrypt(data.encode())
+    print(b2a_hex(mycipher.encrypt(data.encode())))
     # print(b2a_hex(ciphertext).decode())
     return b2a_hex(ciphertext).decode()
 
+def test2():
+    key = 'QsN42qWNXQlfM9Cv'
+    data = '008cef09a5000a00cb32945c933ab7393ddcc7e98c76fd13d30947fa068979b01a9284a457cfd04672636c683a945f7ea4c5c71160fcb0eea4e834c12da61a3a80243705944045c3'
+    data = CommonUtil.aes_decrypt(key, data)
+    print(data)
+
 def test1():
-    key = '123rwr23sqwe43dr'
+    key = '4McBQHckjLLd1Pzr'
     data = aes_encrypt()
+    print(data)
     params = {
         'key': key,
         'data': data
@@ -140,7 +152,8 @@ def test1():
     data = eval(params).get('data')
     print(data)
 
-    data = CommonUtil.aes_decrypt(key, data)
+    unpad = lambda s: s[:-ord(s[len(s) - 1:])]
+    data = unpad(CommonUtil.aes_decrypt(key, data))
     print(data)
 
     article_id = eval(data).get('article_id')
@@ -162,21 +175,5 @@ def test():
 
 
 if __name__ == "__main__":
-    msg = "We are different, work hard!We are different, work hard!We are We are different, work hard!We are different, work hard!We are" * 10
-    # print(msg)
-    #
-    # enres = rsa_encrypt1(msg, ENCRYPT_KEY.get('public_key'))
-    # print(enres)
-    # deres = rsa_decrypt1(enres, ENCRYPT_KEY.get('private_key'))
-    # print(deres)
-    # str1 = '123'
-    # str2 = '234'
-    # list1 = []
-    # list1.append(base64.b64encode(str1.encode()).decode())
-    # list1.append(base64.b64encode(str2.encode()).decode())
-    # t = ''.join(list1)
-    # aes_encrypt()
     test1()
-    # aes_encrypt()
-    # print(base64.b64decode(t))
-    # print(enres == deres)
+
