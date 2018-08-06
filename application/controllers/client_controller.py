@@ -9,7 +9,7 @@ from application.auth.decrypt import decrypt
 client = Blueprint('/', __name__)
 
 
-@client.route('/index', methods=['GET'])
+@client.route('/index', methods=['POST'])
 @decrypt
 def index(message):
     return jsonify(message)
