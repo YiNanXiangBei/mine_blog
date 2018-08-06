@@ -6,16 +6,14 @@ import base64
 import re
 import time
 import datetime
-import json
 
 from flask import Blueprint, request, jsonify
 
 from application.auth.sys_authenticate import jwt_required
 from application.auth.sys_verificate import set_password, Verificate
-from application.constant import response, util
-from application.constant.constant import Code, Message
+from application.constant import response
+from application.constant.constant import Code, Message, Constant
 from application.constant.util import CommonUtil
-from application.models import system_user
 from application.models.article import Article
 from application.models.system_user import SysUser
 from application.models.tag import Tag
@@ -494,10 +492,14 @@ def get_editor_article(message):
 
 @admin.route('/verify', methods=['POST'])
 def verify():
+    """
+    校验用户名和邮箱
+    :return:
+    """
     params = request.values.to_dict()
     enter_username = params['username']
     enter_email = params['email']
-
+    # 用户信息校验成功
     if SysUser.verify(enter_username, enter_email) is True:
         # 获取毫秒级时间戳
         t = time.time()
@@ -516,15 +518,47 @@ def verify():
          '''
         reset_email1 = re.sub(enter_email[:2], '**', enter_email)
 
+        # 整合参数格式
+        encrypt_params = 'username={}&email={}&timestamp={}'.format(enter_username, reset_email1, str(ms_t))
         # .encode() ：用来转换成bytes数组
-        sid = base64.b64encode((enter_username + str(ms_t) + reset_email1).encode()).decode()
-        print(sid)
-        return CommonUtil.send_email('2043281367@qq.com', sid)
+        sid = base64.b64encode(encrypt_params.encode()).decode()
+        # 接收发送返回消息
+        send_result = CommonUtil.send_email(enter_email, sid)
+        # 如果发送失败，则会返回失败原因
+        if send_result:
+            return jsonify(response.return_message(
+                data=send_result,
+                msg=Message.EMAIL_SEND_FAILED.value,
+                code=Code.FORBIDDEN.value
+            ))
+        # 否则发送成功
+        return jsonify(response.return_message(
+            data=None,
+            msg=Message.EMAIL_SEND_SUCCESS.value,
+            code=Code.SUCCESS.value
+        ))
+    # 用户信息校验失败
     else:
         return jsonify(response.return_message(
-            data="test",
+            data=None,
             msg=Message.VERIFY_FAILED.value,
             code=Code.BAD_REQUEST.value
         ))
 
 
+@admin.route('/resetPwd', methods=['PUT'])
+def reset_pwd():
+    """
+    重置密码
+    :return:
+    """
+    params = request.values.to_dict()
+    password = params['password']
+    if password is None or len(password) < Constant.PASSWORD_LENGTH.value:
+        return jsonify(response.return_message(None, Message.PASSWORD_LENGTH_LESS_THAN.value, Code.BAD_REQUEST.value))
+    passwords = None if password == '' else set_password(password)
+    result = SysUser.reset_password(params['username'], passwords)
+    if result is None:
+        return jsonify(response.return_message(None, Message.SUCCESS.value, Code.SUCCESS.value))
+    else:
+        return jsonify(response.return_message(None, Message.RESET_PASSWORD_FAILED.value, Code.BAD_REQUEST.value))

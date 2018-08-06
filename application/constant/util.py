@@ -6,6 +6,10 @@ import base64
 
 import os
 
+from Crypto import Random
+from Crypto.Cipher import AES
+from rsa import PrivateKey
+
 from application import app
 import time
 import re
@@ -19,23 +23,24 @@ from application import configs
 import smtplib
 from email.header import Header  # 用来设置邮件头和邮件主题
 from email.mime.text import MIMEText  # 发送正文只包含简单文本的邮件，引入MIMEText即可
-import logging
+import rsa
 
-logger = logging.getLogger("email_log")
-logger.setLevel(logging.DEBUG)
-
-# 输出到屏幕
-ch = logging.StreamHandler()
-ch.setLevel(logging.WARNING)
-# 输出到文件
-fh = logging.FileHandler("log.log")
-fh.setLevel(logging.INFO)
-# 设置日志格式
-fomatter = logging.Formatter('%(asctime)s -%(name)s-%(levelname)s-%(module)s:%(message)s')
-ch.setFormatter(fomatter)
-fh.setFormatter(fomatter)
-logger.addHandler(ch)
-logger.addHandler(fh)
+# logger = logging.getLogger("email_log")
+# logger.setLevel(logging.DEBUG)
+#
+# # 输出到屏幕
+# ch = logging.StreamHandler()
+# ch.setLevel(logging.WARNING)
+# # 输出到文件
+# fh = logging.FileHandler("log.log")
+# fh.setLevel(logging.INFO)
+# # 设置日志格式
+# fomatter = logging.Formatter('%(asctime)s -%(name)s-%(levelname)s-%(module)s:%(message)s')
+# ch.setFormatter(fomatter)
+# fh.setFormatter(fomatter)
+# logger.addHandler(ch)
+# logger.addHandler(fh)
+from application.configs import ENCRYPT_KEY
 
 
 class CommonUtil(object):
@@ -108,9 +113,66 @@ class CommonUtil(object):
             smtp.connect(smtp_server)  # 连接发送邮件的服务器
             smtp.login(username, password)  # 登录服务器
             smtp.sendmail(sender, receiver, message.as_string())  # 填入邮件的相关信息并发送
-            logger.info("邮件发送成功！！！")
-            print("邮件发送成功！！！")
+            app.logger.info("邮件发送成功！！！")
+            # print("邮件发送成功！！！")
             smtp.quit()
-        except smtplib.SMTPException:
-            logger.info("邮件发送失败！！！")
-            print("邮件发送失败！！！")
+        except smtplib.SMTPException as e:
+            app.logger.info("邮件发送失败！！！")
+            return str(e)
+            # print("邮件发送失败！！！")
+
+    @staticmethod
+    def encrypt(params):
+        """
+        数据加密
+        :param params:
+        :return:
+        """
+        signature = rsa.sign(params.encode(), ENCRYPT_KEY.get('public_key'), 'SHA-1')
+        data = {
+            'params': params,
+            'signature': signature
+        }
+        return rsa.encrypt(str(data).encode(), ENCRYPT_KEY.get('private_key'))
+
+    @staticmethod
+    def rsa_decrypt(private_key, params):
+        """
+        数据解密 最大长度117
+        :param private_key:
+        :param params:
+        :return:
+        """
+        _pri = rsa.PrivateKey._load_pkcs1_pem(private_key)
+        biz_content = base64.b64decode(params)
+        # 1024bit key
+        default_length = 256
+        len_content = len(biz_content)
+        if len_content <= default_length:
+            return rsa.decrypt(bytes.fromhex(biz_content.decode()), _pri).decode()
+        offset = 0
+        params_lst = []
+        while len_content - offset > 0:
+            if len_content - offset > default_length:
+                params_lst.append(
+                    rsa.decrypt(bytes.fromhex(biz_content[offset: offset + default_length].decode()), _pri).decode())
+            else:
+                params_lst.append(rsa.decrypt(bytes.fromhex(biz_content[offset:].decode()), _pri).decode())
+            offset += default_length
+        target = ''.join(params_lst)
+        return target
+
+    @staticmethod
+    def aes_decrypt(key, params):
+        """
+        aes解密
+        :param key: 字符串类型密钥
+        :param params: 十六进制的字符串，需要转为二进制字节数组
+        :return:
+        """
+        # 解密的话要用key和iv生成新的AES对象
+        params = bytes.fromhex(params)
+        my_decrypt = AES.new(key, AES.MODE_CFB, params[:16])
+        # 使用新生成的AES对象，将加密的密文解密
+        decrypt_text = my_decrypt.decrypt(params[16:])
+        return decrypt_text.decode()

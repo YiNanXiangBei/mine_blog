@@ -6,3 +6,5 @@
 # User-specific stuff:
 .idea/
 
+/log.log
+/application/configs.py

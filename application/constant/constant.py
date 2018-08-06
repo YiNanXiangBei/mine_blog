@@ -13,6 +13,7 @@ class Constant(Enum):
     DELETED = '1'
     UN_DELETED = '0'
     TWO = 2
+    PASSWORD_LENGTH = 6
 
 
 @unique
@@ -37,6 +38,10 @@ class Message(Enum):
     DELETE_FAILED = '删除失败'
     VERIFY_SUCCEED = '用户信息验证成功'
     VERIFY_FAILED = '用户信息验证失败'
+    EMAIL_SEND_FAILED = '邮件发送失败'
+    EMAIL_SEND_SUCCESS = '邮件发送成功'
+    PASSWORD_LENGTH_LESS_THAN = '密码长度小于6位'
+    RESET_PASSWORD_FAILED = "重置密码失败，请确认该用户是否存在，或联系管理员！"
 
 
 @unique

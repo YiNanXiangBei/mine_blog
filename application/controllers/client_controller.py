@@ -4,5 +4,12 @@
 # @filename: client_controller.py
 from flask import Blueprint, request, jsonify
 
+from application.auth.decrypt import decrypt
+
 client = Blueprint('/', __name__)
 
+
+@client.route('/index', methods=['GET'])
+@decrypt
+def index(message):
+    return jsonify(message)

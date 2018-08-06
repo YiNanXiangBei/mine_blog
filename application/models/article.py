@@ -21,6 +21,7 @@ class Article(db.Model):
     click_count = db.Column(db.BigInteger, nullable=False, default=0)
     date_publish = db.Column(db.TIMESTAMP, nullable=False)
     deleted = db.Column(db.String(1), nullable=False, default='0')
+    back_img = db.Column(db.String(200))
     # 在Comment中添加一个属性为article
     comments = db.relationship('Comment', backref=db.backref('article'))
 

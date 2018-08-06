@@ -72,6 +72,13 @@ class SysUser(db.Model):
         return session_commit()
 
     @staticmethod
+    def reset_password(username, password):
+        app.logger.info("reset sys_user password ....")
+        db.session.query(SysUser).filter_by(username=username). \
+            update({'password': password})
+        return session_commit()
+
+    @staticmethod
     def update_login_time(user_id, login_time):
         """
         修改上次登录时间
