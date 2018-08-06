@@ -171,8 +171,9 @@ class CommonUtil(object):
         :return:
         """
         # 解密的话要用key和iv生成新的AES对象
-        params = bytes.fromhex(params)
-        my_decrypt = AES.new(key, AES.MODE_CFB, params[:16])
+        iv = bytes.fromhex(params[:32])
+        params = bytes.fromhex((params[32:]))
+        my_decrypt = AES.new(key, AES.MODE_CFB, iv)
         # 使用新生成的AES对象，将加密的密文解密
-        decrypt_text = my_decrypt.decrypt(params[16:])
+        decrypt_text = my_decrypt.decrypt(params)
         return decrypt_text.decode()
