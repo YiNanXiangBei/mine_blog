@@ -556,7 +556,7 @@ def reset_pwd():
     password = params['password']
     if password is None or len(password) < Constant.PASSWORD_LENGTH.value:
         return jsonify(response.return_message(None, Message.PASSWORD_LENGTH_LESS_THAN.value, Code.BAD_REQUEST.value))
-    passwords = None if password == '' else set_password(password)
+    passwords = set_password(password)
     result = SysUser.reset_password(params['username'], passwords)
     if result is None:
         return jsonify(response.return_message(None, Message.SUCCESS.value, Code.SUCCESS.value))
