@@ -5,16 +5,12 @@
 import base64
 
 import os
-
-from Crypto import Random
-from Crypto.Cipher import AES
-from rsa import PrivateKey
-
+from Crypto.Cipher import AES, PKCS1_v1_5
+from Crypto.PublicKey import RSA
 from application import app
 import time
 import re
 from io import BytesIO
-
 from PIL import Image
 from qcloud_cos import CosConfig, CosS3Client
 
@@ -136,31 +132,40 @@ class CommonUtil(object):
         return rsa.encrypt(str(data).encode(), ENCRYPT_KEY.get('private_key'))
 
     @staticmethod
-    def rsa_decrypt(private_key, params):
+    def rsa_decrypt(private_key, biz_content):
         """
         数据解密 最大长度117
         :param private_key:
-        :param params:
+        :param biz_content:
         :return:
         """
-        _pri = rsa.PrivateKey._load_pkcs1_pem(private_key)
-        biz_content = base64.b64decode(params)
-        # 1024bit key
-        default_length = 256
-        len_content = len(biz_content)
-        if len_content <= default_length:
-            return rsa.decrypt(bytes.fromhex(biz_content.decode()), _pri).decode()
-        offset = 0
-        params_lst = []
-        while len_content - offset > 0:
-            if len_content - offset > default_length:
-                params_lst.append(
-                    rsa.decrypt(bytes.fromhex(biz_content[offset: offset + default_length].decode()), _pri).decode())
-            else:
-                params_lst.append(rsa.decrypt(bytes.fromhex(biz_content[offset:].decode()), _pri).decode())
-            offset += default_length
-        target = ''.join(params_lst)
-        return target
+        rsakey = RSA.importKey(private_key)  # 导入读取到的私钥
+        cipher = PKCS1_v1_5.new(rsakey)  # 生成对象
+        try:
+            biz_content = base64.b64decode(biz_content)
+            # 1024bit key
+            default_length = 344
+            len_content = len(biz_content)
+            if len_content <= default_length:
+                cipher.decrypt(base64.b64decode(bytes.fromhex(biz_content).decode()), None)
+            offset = 0
+            params_lst = []
+            while len_content - offset > 0:
+                if len_content - offset > default_length:
+                    params_lst.append(
+                        cipher.decrypt(base64.b64decode(
+                            bytes.fromhex(biz_content[offset: offset + default_length].decode()).decode()),
+                                       None).decode())
+                else:
+                    params_lst.append(
+                        cipher.decrypt(base64.b64decode(bytes.fromhex(biz_content[offset:].decode()).decode()),
+                                       None).decode())
+                offset += default_length
+            target = ''.join(params_lst)
+            return target
+        except Exception as e:
+            app.logger.error('rsa decrypt error: {}'.format(e))
+            return None
 
     @staticmethod
     def aes_decrypt(key, params):
@@ -171,9 +176,16 @@ class CommonUtil(object):
         :return:
         """
         # 解密的话要用key和iv生成新的AES对象
-        iv = bytes.fromhex(params[:32])
-        params = bytes.fromhex((params[32:]))
-        my_decrypt = AES.new(key, AES.MODE_CFB, iv)
-        # 使用新生成的AES对象，将加密的密文解密
-        decrypt_text = my_decrypt.decrypt(params)
-        return decrypt_text.decode()
+        try:
+            iv = bytes.fromhex(params[:32])
+            params = bytes.fromhex((params[32:]))
+            my_decrypt = AES.new(key, AES.MODE_CBC, iv)
+            # 使用新生成的AES对象，将加密的密文解密
+            decrypt_text = _unpad(my_decrypt.decrypt(params))
+            return decrypt_text.decode()
+        except Exception as e:
+            app.logger.error('aes decrypt error: {}'.format(e))
+
+
+def _unpad(s):
+    return s[:-ord(s[len(s) - 1:])]
