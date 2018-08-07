@@ -4,6 +4,7 @@
 # @filename: article.py
 import datetime
 
+from sqlalchemy import and_
 from sqlalchemy.exc import SQLAlchemyError
 
 from application import db, app
@@ -75,6 +76,32 @@ class Article(db.Model):
         app.logger.info("get article by id ....")
         article = db.session.query(Article).filter_by(id=article_id, deleted=Constant.UN_DELETED.value).first()
         return article
+
+    @staticmethod
+    def get_previous(publish_date):
+        """
+        依据时间点，获取当前文章的上一篇文章的id
+        :param publish_date:
+        :return:
+        """
+        app.logger.info("get previous article by publish_date ...")
+        article_id = db.session.query(Article.id).\
+            filter(Article.deleted == Constant.UN_DELETED.value, Article.date_publish > publish_date).\
+            order_by(Article.date_publish).first()
+        return article_id
+
+    @staticmethod
+    def get_next(publish_date):
+        """
+        依据时间点，获取当前文章的下一篇文章的id
+        :param publish_date:
+        :return:
+        """
+        app.logger.info("get next article by publish_date ...")
+        article_id = db.session.query(Article.id). \
+            filter(Article.deleted == Constant.UN_DELETED.value, Article.date_publish < publish_date). \
+            order_by(Article.date_publish.desc()).first()
+        return article_id
 
     @staticmethod
     def insert(article, tags_id):

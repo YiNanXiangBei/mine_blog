@@ -462,6 +462,11 @@ def get_by_tag(message):
 @admin.route('/oldArticles', methods=['GET'])
 @jwt_required
 def get_editor_article(message):
+    """
+    分页查询
+    :param message:
+    :return:
+    """
     if message['code'] != Code.SUCCESS.value:
         return jsonify(message)
     params = request.values.to_dict()
