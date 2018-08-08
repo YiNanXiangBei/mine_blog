@@ -13,12 +13,6 @@ from application.models.tag import Tag
 client = Blueprint('/', __name__)
 
 
-@client.route('/index', methods=['GET'])
-@decrypt
-def index(message):
-    return jsonify(message)
-
-
 @client.route('/detail_article', methods=['GET'])
 @decrypt
 def detail_article(message):
@@ -105,3 +99,36 @@ def get_tag_articles(message):
     print(articles)
     print(articles.total)
     return None
+
+
+@client.route('/index', methods=['GET'])
+def index():
+    page_num = request.values.get('page')
+    articles = Article.get_article_by_pageno(page_num)
+    if articles:
+        article_list = []
+        for item in articles.items:
+            article = {
+                "id": item.id,
+                "title": item.title,
+                "desc": item.desc,
+                "content": item.content,
+                "publish_time": item.date_publish
+            }
+            article_list.append(article)
+        return jsonify(response.return_message(
+            {
+                "data": {
+                    "total": articles.total,
+                    "articles": article_list
+                }
+            },
+            Message.SUCCESS.value,
+            Code.SUCCESS.value
+        ))
+    return jsonify(response.return_message(
+        None,
+        Message.BAD_REQUEST.value,
+        Code.BAD_REQUEST.value
+    ))
+

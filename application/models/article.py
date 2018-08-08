@@ -67,6 +67,20 @@ class Article(db.Model):
         return articles
 
     @staticmethod
+    def get_article_by_pageno(page_no, page_size=10):
+        """
+        根据页数查询文章首页
+        :param page_no:
+        :param page_size:
+        :return:
+        """
+        app.logger.info('get article by pageno')
+        articles = db.session.query(Article).filter(Article.deleted == Constant.UN_DELETED.value).order_by(
+            Article.date_publish.desc()).paginate(
+            int(page_no), int(page_size), False)
+        return articles
+
+    @staticmethod
     def get_by_id(article_id):
         """
         依据文章id查询文章以及分页查询文章的评论
