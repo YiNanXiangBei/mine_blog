@@ -8,6 +8,7 @@ from application.auth.decrypt import decrypt
 from application.constant import response
 from application.constant.constant import Code, Message
 from application.models.article import Article
+from application.models.tag import Tag
 
 client = Blueprint('/', __name__)
 
@@ -63,3 +64,44 @@ def detail_article(message):
         msg=Message.BAD_REQUEST.value,
         code=Code.BAD_REQUEST.value
     ))
+
+
+@client.route('/tags', methods=['GET'])
+def tags():
+    """
+    获取所有标签
+    :return:
+    """
+    tags = Tag.get_all()
+    if tags:
+        data_tag = []
+        for tag in tags:
+            sin_tag = {
+                "id": tag.id,
+                "tag": tag.tag
+            }
+            data_tag.append(sin_tag)
+        return jsonify(response.return_message(
+            {
+                'tags': data_tag
+            },
+            Message.SUCCESS.value,
+            Code.SUCCESS.value
+        ))
+    return jsonify(response.return_message(
+        None,
+        Message.SUCCESS.value,
+        Code.SUCCESS.value
+    ))
+
+
+@client.route('/tag_articles', methods=['GET'])
+@decrypt
+def get_tag_articles(message):
+    if message['code'] != Code.SUCCESS.value:
+        return jsonify(message)
+    tag_id = message['data']['tag_id']
+    articles = Tag.get_tag_by_id(tag_id)
+    print(articles)
+    print(articles.total)
+    return None

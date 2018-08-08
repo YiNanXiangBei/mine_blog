@@ -147,7 +147,7 @@ class CommonUtil(object):
             default_length = 344
             len_content = len(biz_content)
             if len_content <= default_length:
-                cipher.decrypt(base64.b64decode(bytes.fromhex(biz_content).decode()), None)
+                return cipher.decrypt(base64.b64decode(bytes.fromhex(biz_content.decode()).decode()), None).decode()
             offset = 0
             params_lst = []
             while len_content - offset > 0:

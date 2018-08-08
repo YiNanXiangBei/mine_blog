@@ -41,6 +41,7 @@ class Tag(db.Model):
         查询所有标签
         :return:
         """
+        app.logger.info('get all tags ...')
         return db.session.query(Tag).all()
 
     @staticmethod
@@ -53,6 +54,25 @@ class Tag(db.Model):
         app.logger.info("get tag ....")
         value = '{}%'.format(tag)
         return db.session.query(Tag).filter(Tag.tag.like(value)).all()
+
+    @staticmethod
+    def get_tag_by_id(tag_id):
+        app.logger.info('get tag by id ...')
+        tag = db.session.query(Tag).filter(Tag.id == tag_id).first()
+        # print(type(db.session.query(Tag)))
+        # print(type(tag.articles))
+        # print(len(tag.articles.all()))
+        # print(tag.articles.first().id)
+        # print(type(tag.articles.order_by(Article.date_publish)))
+        # print(tag.articles.order_by(Article.date_publish).first())
+        # print(tag.articles.order_by(Article.date_publish).first().id)
+        # print(tag.articles.order_by(Article.date_publish).paginate(1, 2, False))
+        # print(type(tag.articles.order_by(Article.date_publish).paginate(1, 2, False)))
+        # print(tag.articles.order_by(Article.date_publish).paginate(1, 10, False).total)
+        # print(type(db.session.query(Tag).filter(Article.id == tag_id)))
+        # articles = tag.articles.paginate(1, 2, False).all()
+        # print(articles)
+        return tag.articles.order_by(Article.date_publish).paginate(1, 10, False)
 
     @staticmethod
     def get_id_by_tag(tags):
