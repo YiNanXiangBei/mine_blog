@@ -62,7 +62,8 @@ class Article(db.Model):
         """
         app.logger.info('get article by paginate and datetime ....')
         articles = db.session.query(Article).filter(Article.deleted == Constant.UN_DELETED.value,
-                                                    Article.date_publish.between(start_time, end_time)).order_by(Article.date_publish.desc()).paginate(
+                                                    Article.date_publish.between(start_time, end_time)).order_by(
+            Article.date_publish.desc()).paginate(
             int(page_no), int(page_size), False)
         return articles
 
@@ -79,6 +80,19 @@ class Article(db.Model):
             Article.date_publish.desc()).paginate(
             int(page_no), int(page_size), False)
         return articles
+
+    @staticmethod
+    def get_by_search(search_params):
+        """
+       模糊条件 查询文章
+       :param search_params: 
+       :param page_size: 
+       :return: 
+       """
+        app.logger.info("get article by searchparams ....")
+        value = '%{}%'.format(search_params)
+        return db.session.query(Article).filter(Article.content.like(value)).order_by(
+            Article.date_publish.desc()).all()
 
     @staticmethod
     def get_by_id(article_id):
@@ -99,8 +113,8 @@ class Article(db.Model):
         :return:
         """
         app.logger.info("get previous article by publish_date ...")
-        article_id = db.session.query(Article.id).\
-            filter(Article.deleted == Constant.UN_DELETED.value, Article.date_publish > publish_date).\
+        article_id = db.session.query(Article.id). \
+            filter(Article.deleted == Constant.UN_DELETED.value, Article.date_publish > publish_date). \
             order_by(Article.date_publish).first()
         return article_id
 

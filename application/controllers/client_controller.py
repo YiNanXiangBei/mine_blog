@@ -132,3 +132,25 @@ def index():
         Code.BAD_REQUEST.value
     ))
 
+
+@client.route('/search', methods=['GET'])
+def search():
+    input_search = request.values.get('search_params')
+    articles = Article.get_by_search(input_search)
+    if articles:
+        article_list = []
+        for item in articles:
+            article = {
+                "id": item.id,
+                "title": item.title,
+                "content": item.content
+            }
+            article_list.append(article)
+        return jsonify(response.return_message(
+            {
+                "articles": article_list
+            },
+            Message.SUCCESS.value,
+            Code.SUCCESS.value
+        ))
+    return None
