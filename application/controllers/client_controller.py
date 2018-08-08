@@ -95,10 +95,28 @@ def get_tag_articles(message):
     if message['code'] != Code.SUCCESS.value:
         return jsonify(message)
     tag_id = message['data']['tag_id']
-    articles = Tag.get_tag_by_id(tag_id)
-    print(articles)
-    print(articles.total)
-    return None
+    page_no = message['data']['page_no']
+    articles = Tag.get_tag_by_id(tag_id, page_no)
+    article_list = []
+    if articles:
+        for item in articles.items:
+            article_list.append({
+                'id': item.id,
+                'title': item.title,
+                'desc': item.desc,
+                'content': item.content,
+                'publish_time': item.date_publish,
+                'back_url': item.back_img
+            })
+        return jsonify(response.return_message(
+            {
+                'total': articles.total,
+                'articles': article_list
+            },
+            Message.SUCCESS.value,
+            Code.SUCCESS.value
+        ))
+    return jsonify(response.return_message(None, Message.BAD_REQUEST.value, Code.BAD_REQUEST.value))
 
 
 @client.route('/index', methods=['GET'])
