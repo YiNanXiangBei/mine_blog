@@ -154,3 +154,34 @@ def search():
             Code.SUCCESS.value
         ))
     return None
+
+
+@client.route('/archive', methods=['GET'])
+def archive():
+    articles = Article.get_by_archive()
+    if articles:
+        publish_years = Article.get_archive_year()
+        archive_list = []
+        for year in publish_years:
+            article_list = []
+            for article in articles:
+                if year[0] == article[1]:
+                    article_list.append({
+                        "id": article[0].id,
+                        "publish_time": article[0].date_publish,
+                        "title": article[0].title
+                    })
+            archive_list.append({
+                'publish_date': year[0],
+                'articles': article_list
+            })
+        return jsonify(response.return_message(
+            archive_list,
+            Message.SUCCESS.value,
+            Code.SUCCESS.value
+        ))
+    return jsonify(response.return_message(
+        None,
+        Message.BAD_REQUEST.value,
+        Code.BAD_REQUEST.value
+    ))

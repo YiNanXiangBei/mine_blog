@@ -4,7 +4,7 @@
 # @filename: article.py
 import datetime
 
-from sqlalchemy import and_
+from sqlalchemy import and_, extract, desc, func
 from sqlalchemy.exc import SQLAlchemyError
 
 from application import db, app
@@ -93,6 +93,28 @@ class Article(db.Model):
         value = '%{}%'.format(search_params)
         return db.session.query(Article).filter(Article.content.like(value)).order_by(
             Article.date_publish.desc()).all()
+
+    @staticmethod
+    def get_by_archive():
+        """
+        查询归档信息
+        :return:
+        """
+        app.logger.info("get article by archive ....")
+        articles = db.session.query(Article, extract('year', Article.date_publish).label('year')).\
+            filter(Article.deleted == Constant.UN_DELETED.value).order_by(desc('year')).all()
+        return articles
+
+    @staticmethod
+    def get_archive_year():
+        """
+        查询归档年份
+        :return:
+        """
+        app.logger.info("get archive year ....")
+        years = db.session.query(extract('year', Article.date_publish).label('year')). \
+            filter(Article.deleted == Constant.UN_DELETED.value).group_by('year').order_by(desc('year')).all()
+        return years
 
     @staticmethod
     def get_by_id(article_id):
