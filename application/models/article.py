@@ -51,7 +51,7 @@ class Article(db.Model):
         return articles
 
     @staticmethod
-    def get_all_by_date(start_time, end_time, page_no, page_size=10):
+    def get_all_by_date(start_time, end_time, page_no, page_size=7):
         """
         依据日期进行分页查询
         :param start_time: 开始日期
@@ -68,7 +68,7 @@ class Article(db.Model):
         return articles
 
     @staticmethod
-    def get_article_by_pageno(page_no, page_size=10):
+    def get_article_by_pageno(page_no, page_size=7):
         """
         根据页数查询文章首页
         :param page_no:
@@ -85,8 +85,7 @@ class Article(db.Model):
     def get_by_search(search_params):
         """
        模糊条件 查询文章
-       :param search_params: 
-       :param page_size: 
+       :param search_params:
        :return: 
        """
         app.logger.info("get article by searchparams ....")
@@ -195,6 +194,18 @@ class Article(db.Model):
                         'date_publish': article.date_publish})
             return session_commit()
         db.session.rollback()
+
+    @staticmethod
+    def update_click_count(article_id):
+        app.logger.info('update article click_count')
+        db.session.query(Article).filter_by(id=article_id).update({'click_count': Article.click_count + 1,
+                                                                   'date_publish': Article.date_publish})
+        return session_commit()
+
+    @staticmethod
+    def get_top5():
+        app.logger.info('get top 5 article by click_count ...')
+        return db.session.query(Article).order_by(Article.click_count.desc()).limit(5).all()
 
 
 def session_commit():

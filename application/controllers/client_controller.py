@@ -46,6 +46,7 @@ def detail_article(message):
             "previous": previous[0] if previous else None,
             "next": next[0] if next else None
         }
+        Article.update_click_count(article_id)
         return jsonify(response.return_message(
             data={
                 "article": result,
@@ -120,8 +121,11 @@ def get_tag_articles(message):
 
 
 @client.route('/index', methods=['GET'])
-def index():
-    page_num = request.values.get('page')
+@decrypt
+def index(message):
+    if message['code'] != Code.SUCCESS.value:
+        return jsonify(message)
+    page_num = message['data']['page']
     articles = Article.get_article_by_pageno(page_num)
     if articles:
         article_list = []
@@ -131,15 +135,20 @@ def index():
                 "title": item.title,
                 "desc": item.desc,
                 "content": item.content,
-                "publish_time": item.date_publish
+                "publish_time": 'Posted by yinan on' + item.date_publish.strftime('%b %d,%Y'),
             }
             article_list.append(article)
+        top_articles = []
+        for item in Article.get_top5():
+            top_articles.append({
+                'id': item.id,
+                'title': item.title
+            })
         return jsonify(response.return_message(
             {
-                "data": {
-                    "total": articles.total,
-                    "articles": article_list
-                }
+                "total": articles.total,
+                "articles": article_list,
+                'top_articles': top_articles
             },
             Message.SUCCESS.value,
             Code.SUCCESS.value
