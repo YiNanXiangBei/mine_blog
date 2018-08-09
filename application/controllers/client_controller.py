@@ -161,8 +161,11 @@ def index(message):
 
 
 @client.route('/search', methods=['GET'])
-def search():
-    input_search = request.values.get('search_params')
+@decrypt
+def search(message):
+    if message['code'] != Code.SUCCESS.value:
+        return jsonify(message)
+    input_search = message['data']['search_params']
     articles = Article.get_by_search(input_search)
     if articles:
         article_list = []
@@ -180,7 +183,11 @@ def search():
             Message.SUCCESS.value,
             Code.SUCCESS.value
         ))
-    return None
+    return jsonify(response.return_message(
+        None,
+        Message.BAD_REQUEST.value,
+        Code.BAD_REQUEST.value
+    ))
 
 
 @client.route('/archive', methods=['GET'])
