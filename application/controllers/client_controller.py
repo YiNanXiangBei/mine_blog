@@ -135,7 +135,7 @@ def index(message):
                 "title": item.title,
                 "desc": item.desc,
                 "content": item.content,
-                "publish_time": 'Posted by yinan on' + item.date_publish.strftime('%b %d,%Y'),
+                "publish_time": 'Posted by yinan on ' + item.date_publish.strftime('%b %d,%Y'),
             }
             article_list.append(article)
         top_articles = []
@@ -202,7 +202,7 @@ def archive():
                 if year[0] == article[1]:
                     article_list.append({
                         "id": article[0].id,
-                        "publish_time": article[0].date_publish,
+                        "publish_time": article[0].date_publish.strftime('%b %d,%Y'),
                         "title": article[0].title
                     })
             archive_list.append({
