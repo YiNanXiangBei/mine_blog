@@ -228,5 +228,5 @@ def image(image_id):
     accept = request.headers.get('Accept')
     image_url = 'http://{}.cosgz.myqcloud.com/{}'.format(tencent_config.get('bucket'), image_id)
     if accept.find(Constant.WEBP_IMG.value) == -1:
-        image_url = image_url.replace('webp', 'png')
+        image_url = image_url.replace('webp', 'jpg')
     return redirect(image_url)

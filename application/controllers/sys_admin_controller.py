@@ -160,8 +160,9 @@ def upload(message):
     base64_str = request.values.get('img')
     username = request.values.get('username')
     CommonUtil.handle_img(base64_str, 'avatar')
-    CommonUtil.upload_img('avatar.png', 'PNG')
-    result = CommonUtil.upload_img('avatar.webp')
+    remote_name = str(int(time.time()))
+    CommonUtil.upload_img('avatar.jpg', remote_name, '.jpg')
+    result = CommonUtil.upload_img('avatar.webp', remote_name)
     if result is not None:
         result_avatar = SysUser.update_avatar(username, result)
         if result_avatar is None:
@@ -222,8 +223,9 @@ def upload_image(message):
         return jsonify(message)
     base64_str = base64.b64encode(request.files['file'].read()).decode('utf-8')
     CommonUtil.handle_img(base64_str, 'files')
-    CommonUtil.upload_img('files.png', 'PNG')
-    result = CommonUtil.upload_img('files.webp')
+    remote_name = str(int(time.time()))
+    CommonUtil.upload_img('files.jpg', remote_name, '.jpg')
+    result = CommonUtil.upload_img('files.webp', remote_name)
     if result is not None:
         return jsonify(response.return_message(
             data={
@@ -259,7 +261,7 @@ def post_publish(message):
             code=Code.TITLE_EXISTS.value
         ))
     article = Article(results['title'], results['desc'], results['content'], datetime.datetime.now().
-                      strftime("%Y-%m-%d %H:%M:%S"))
+                      strftime("%Y-%m-%d %H:%M:%S"), results['back_img'])
     # 将前台传来的字符串，转换成列表，再转换成元组,然后通过标签查询id
     tag_ids = Tag.get_id_by_tag(tuple(eval(results['tags'])))
     result = Article.insert(article, tag_ids)
@@ -323,7 +325,7 @@ def put_publish(message):
             code=Code.NOT_FOUND.value
         ))
     article = Article(results['title'], results['desc'], results['content'], datetime.datetime.now().
-                      strftime("%Y-%m-%d %H:%M:%S"))
+                      strftime("%Y-%m-%d %H:%M:%S"), results['back_img'])
     article.id = results['article_id']
     # 将前台传来的字符串，转换成列表，再转换成元组,然后通过标签查询id
     tag_ids = Tag.get_id_by_tag(tuple(eval(results['tags'])))
@@ -361,7 +363,8 @@ def get_publish(message):
             "title": article.title,
             "tags": tags,
             "desc": article.desc,
-            "content": article.content
+            "content": article.content,
+            'back_img': article.back_img
         }
         return jsonify(response.return_message(
             data={

@@ -26,11 +26,12 @@ class Article(db.Model):
     # 在Comment中添加一个属性为article
     comments = db.relationship('Comment', backref=db.backref('article'))
 
-    def __init__(self, title, desc, content, date_publish):
+    def __init__(self, title, desc, content, date_publish, back_img=None):
         self.title = title
         self.desc = desc
         self.content = content
         self.date_publish = date_publish
+        self.back_img = back_img
 
     def __str__(self):
         return '<Article{}, {}, {}, {}, {}>'. \
@@ -213,7 +214,7 @@ class Article(db.Model):
         if TagArticle.session_commit() is None:
             db.session.query(Article).filter_by(id=article.id). \
                 update({'title': article.title, 'desc': article.desc, 'content': article.content,
-                        'date_publish': article.date_publish})
+                        'date_publish': article.date_publish, 'back_img': article.back_img})
             return session_commit()
         db.session.rollback()
 

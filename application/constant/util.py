@@ -48,7 +48,7 @@ class CommonUtil(object):
         :param filename:
         :return:
         """
-        image_path = configs.SYS_UPLOAD_PATH + filename + '.png'
+        image_path = configs.SYS_UPLOAD_PATH + filename + '.jpg'
         webp_path = configs.SYS_UPLOAD_PATH + filename + '.webp'
         base64_data = re.sub('^data:image/.+;base64,', '', base64_str)
         byte_data = base64.b64decode(base64_data)
@@ -57,11 +57,11 @@ class CommonUtil(object):
         if webp_path:
             img.convert("RGB").save(webp_path, 'WEBP')
         if image_path:
-            img = Image.open(webp_path).save(image_path, 'PNG')
+            img = Image.open(webp_path).save(image_path, 'JPEG')
         return img
 
     @staticmethod
-    def upload_img(filename, img_type='.webp'):
+    def upload_img(filename, remote_name, img_type='.webp'):
         """
         将图片上传到云存储中
         :param filename:
@@ -73,7 +73,7 @@ class CommonUtil(object):
         config = CosConfig(Region=tencent_config.get('region'), Secret_id=tencent_config.get('secret_id'),
                            Secret_key=tencent_config.get('secret_key'))  # 获取配置对象
         client = CosS3Client(config)
-        remote_name = str(int(time.time())) + img_type
+        remote_name = remote_name + img_type
         remote_url = '{}/{}'.format(configs.SYS_IMG_URL, remote_name)
         response = None
         try:
