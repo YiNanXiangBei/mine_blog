@@ -42,24 +42,39 @@ from application.configs import ENCRYPT_KEY
 class CommonUtil(object):
     @staticmethod
     def handle_img(base64_str, filename):
-        image_path = configs.SYS_UPLOAD_PATH + filename
+        """
+        将base64位数据转换成web格式图片
+        :param base64_str:
+        :param filename:
+        :return:
+        """
+        image_path = configs.SYS_UPLOAD_PATH + filename + '.png'
+        webp_path = configs.SYS_UPLOAD_PATH + filename + '.webp'
         base64_data = re.sub('^data:image/.+;base64,', '', base64_str)
         byte_data = base64.b64decode(base64_data)
         image_data = BytesIO(byte_data)
         img = Image.open(image_data)
+        if webp_path:
+            img.convert("RGB").save(webp_path, 'WEBP')
         if image_path:
-            img.convert("RGB").save(image_path, 'WEBP')
+            img = Image.open(webp_path).save(image_path, 'PNG')
         return img
 
     @staticmethod
-    def upload_img(filename):
+    def upload_img(filename, img_type='.webp'):
+        """
+        将图片上传到云存储中
+        :param filename:
+        :param img_type:
+        :return:
+        """
         tencent_config = configs.TENCENT_OAUTH
         image_path = configs.SYS_UPLOAD_PATH + filename
         config = CosConfig(Region=tencent_config.get('region'), Secret_id=tencent_config.get('secret_id'),
                            Secret_key=tencent_config.get('secret_key'))  # 获取配置对象
         client = CosS3Client(config)
-        remote_name = str(int(time.time())) + '.webp'
-        remote_url = 'http://{}.cosgz.myqcloud.com/{}'.format(tencent_config.get('bucket'), remote_name)
+        remote_name = str(int(time.time())) + img_type
+        remote_url = '{}/{}'.format(configs.SYS_IMG_URL, remote_name)
         response = None
         try:
             with open(image_path, 'rb') as fp:

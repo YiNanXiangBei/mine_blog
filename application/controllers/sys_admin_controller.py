@@ -159,7 +159,8 @@ def upload(message):
         return jsonify(message)
     base64_str = request.values.get('img')
     username = request.values.get('username')
-    CommonUtil.handle_img(base64_str, 'avatar.webp')
+    CommonUtil.handle_img(base64_str, 'avatar')
+    CommonUtil.upload_img('avatar.png', 'PNG')
     result = CommonUtil.upload_img('avatar.webp')
     if result is not None:
         result_avatar = SysUser.update_avatar(username, result)
@@ -220,9 +221,9 @@ def upload_image(message):
     if message['code'] != Code.SUCCESS.value:
         return jsonify(message)
     base64_str = base64.b64encode(request.files['file'].read()).decode('utf-8')
-    filename = "files.webp"
-    CommonUtil.handle_img(base64_str, filename)
-    result = CommonUtil.upload_img(filename)
+    CommonUtil.handle_img(base64_str, 'files')
+    CommonUtil.upload_img('files.png', 'PNG')
+    result = CommonUtil.upload_img('files.webp')
     if result is not None:
         return jsonify(response.return_message(
             data={

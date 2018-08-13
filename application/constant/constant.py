@@ -14,6 +14,7 @@ class Constant(Enum):
     UN_DELETED = '0'
     TWO = 2
     PASSWORD_LENGTH = 6
+    WEBP_IMG = 'image/webp'
 
 
 @unique

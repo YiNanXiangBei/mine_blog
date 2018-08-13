@@ -2,11 +2,12 @@
 # @author: yinan
 # @time: 18-8-2 下午2:46
 # @filename: client_controller.py
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, redirect
 
+from application import configs
 from application.auth.decrypt import decrypt
 from application.constant import response
-from application.constant.constant import Code, Message
+from application.constant.constant import Code, Message, Constant
 from application.models.article import Article
 from application.models.tag import Tag
 
@@ -219,3 +220,13 @@ def archive():
         Message.BAD_REQUEST.value,
         Code.BAD_REQUEST.value
     ))
+
+
+@client.route('/image/<image_id>', methods=['GET'])
+def image(image_id):
+    tencent_config = configs.TENCENT_OAUTH
+    accept = request.headers.get('Accept')
+    image_url = 'http://{}.cosgz.myqcloud.com/{}'.format(tencent_config.get('bucket'), image_id)
+    if accept.find(Constant.WEBP_IMG.value) == -1:
+        image_url = image_url.replace('webp', 'png')
+    return redirect(image_url)
