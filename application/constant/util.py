@@ -8,7 +8,6 @@ import os
 from Crypto.Cipher import AES, PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from application import app
-import time
 import re
 from io import BytesIO
 from PIL import Image
@@ -21,21 +20,6 @@ from email.header import Header  # 用来设置邮件头和邮件主题
 from email.mime.text import MIMEText  # 发送正文只包含简单文本的邮件，引入MIMEText即可
 import rsa
 
-# logger = logging.getLogger("email_log")
-# logger.setLevel(logging.DEBUG)
-#
-# # 输出到屏幕
-# ch = logging.StreamHandler()
-# ch.setLevel(logging.WARNING)
-# # 输出到文件
-# fh = logging.FileHandler("log.log")
-# fh.setLevel(logging.INFO)
-# # 设置日志格式
-# fomatter = logging.Formatter('%(asctime)s -%(name)s-%(levelname)s-%(module)s:%(message)s')
-# ch.setFormatter(fomatter)
-# fh.setFormatter(fomatter)
-# logger.addHandler(ch)
-# logger.addHandler(fh)
 from application.configs import ENCRYPT_KEY
 
 
@@ -54,10 +38,8 @@ class CommonUtil(object):
         byte_data = base64.b64decode(base64_data)
         image_data = BytesIO(byte_data)
         img = Image.open(image_data)
-        if webp_path:
-            img.convert("RGB").save(webp_path, 'WEBP')
-        if image_path:
-            img = Image.open(webp_path).save(image_path, 'JPEG')
+        app.logger.info('img format: {}, size: {}, mode: {}'.format(img.format, img.size, img.mode))
+        img_thumb(img, image_path, webp_path)
         return img
 
     @staticmethod
@@ -114,7 +96,7 @@ class CommonUtil(object):
         '''
 
         # 创建一个实例
-        message = MIMEText(mail_body.format(sid,sid), 'html', 'utf-8')  # 邮件正文
+        message = MIMEText(mail_body.format(sid, sid), 'html', 'utf-8')  # 邮件正文
         message['From'] = sender  # 邮件上显示的发件人
         message['To'] = receiver  # 邮件上显示的收件人
         message['Subject'] = Header(mail_title, 'utf-8')  # 邮件主题
@@ -170,7 +152,7 @@ class CommonUtil(object):
                     params_lst.append(
                         cipher.decrypt(base64.b64decode(
                             bytes.fromhex(biz_content[offset: offset + default_length].decode()).decode()),
-                                       None).decode())
+                            None).decode())
                 else:
                     params_lst.append(
                         cipher.decrypt(base64.b64decode(bytes.fromhex(biz_content[offset:].decode()).decode()),
@@ -204,3 +186,19 @@ class CommonUtil(object):
 
 def _unpad(s):
     return s[:-ord(s[len(s) - 1:])]
+
+
+def img_thumb(img, img_path, webp_path):
+    bak_img = Image.new("RGB", img.size, "black")
+    new_img = Image.blend(img, bak_img, 0.3)
+    if max(img.size[0], img.size[1]) > 1000:
+        if img.size[0] > img.size[1]:
+            img.thumbnail((1280, 1000))
+        else:
+            img.thumbnail((1000, 1000))
+        bak_img = Image.new("RGB", img.size, "black")
+        new_img = Image.blend(img, bak_img, 0.3)
+        new_img.save(img_path, 'JPEG', quality=90)
+    else:
+        new_img.save(img_path, 'JPEG')
+    new_img.convert("RGB").save(webp_path, 'WEBP')
