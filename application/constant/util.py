@@ -189,6 +189,13 @@ def _unpad(s):
 
 
 def img_thumb(img, img_path, webp_path):
+    """
+    图片裁剪到适配浏览器大小，同时将图片保存为jpg和webp格式
+    :param img:
+    :param img_path:
+    :param webp_path:
+    :return:
+    """
     bak_img = Image.new("RGB", img.size, "black")
     new_img = Image.blend(img, bak_img, 0.3)
     if max(img.size[0], img.size[1]) > 1000:
