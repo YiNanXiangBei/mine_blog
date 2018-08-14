@@ -222,10 +222,15 @@ def upload_image(message):
     if message['code'] != Code.SUCCESS.value:
         return jsonify(message)
     base64_str = base64.b64encode(request.files['file'].read()).decode('utf-8')
-    CommonUtil.handle_img(base64_str, 'files')
+    img = CommonUtil.handle_img(base64_str, 'files')
     remote_name = str(int(time.time()))
     CommonUtil.upload_img('files.jpg', remote_name, '.jpg')
     result = CommonUtil.upload_img('files.webp', remote_name)
+    if request.values.get('back_img'):
+        remote_name = remote_name + '.tiny'
+        CommonUtil.tiny_img_thumb(img, 'tiny_files')
+        CommonUtil.upload_img('tiny_files.jpg', remote_name, '.jpg')
+        CommonUtil.upload_img('tiny_files.webp', remote_name)
     if result is not None:
         return jsonify(response.return_message(
             data={

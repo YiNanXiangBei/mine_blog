@@ -183,6 +183,21 @@ class CommonUtil(object):
         except Exception as e:
             app.logger.error('aes decrypt error: {}'.format(e))
 
+    @staticmethod
+    def tiny_img_thumb(img, filename):
+        """
+        生成晓得缩略图
+        :param img:
+        :param filename:
+        :return:
+        """
+        image_path = configs.SYS_UPLOAD_PATH + filename + '.jpg'
+        webp_path = configs.SYS_UPLOAD_PATH + filename + '.webp'
+        img.thumbnail((512, 512))
+        new_img = img.crop((0, 0, img.size[1], img.size[1]))
+        new_img.save(image_path, 'JPEG')
+        new_img.convert("RGB").save(webp_path, 'WEBP')
+
 
 def _unpad(s):
     return s[:-ord(s[len(s) - 1:])]
@@ -197,15 +212,17 @@ def img_thumb(img, img_path, webp_path):
     :return:
     """
     bak_img = Image.new("RGB", img.size, "black")
-    new_img = Image.blend(img, bak_img, 0.3)
+    new_img = Image.blend(img, bak_img, 0.4)
     if max(img.size[0], img.size[1]) > 1000:
         if img.size[0] > img.size[1]:
-            img.thumbnail((1280, 1000))
+            img.thumbnail((1600, 1200))
         else:
             img.thumbnail((1000, 1000))
         bak_img = Image.new("RGB", img.size, "black")
-        new_img = Image.blend(img, bak_img, 0.3)
+        new_img = Image.blend(img, bak_img, 0.4)
         new_img.save(img_path, 'JPEG', quality=90)
     else:
         new_img.save(img_path, 'JPEG')
     new_img.convert("RGB").save(webp_path, 'WEBP')
+
+
