@@ -228,7 +228,7 @@ class Article(db.Model):
     @staticmethod
     def get_top5():
         app.logger.info('get top 5 article by click_count ...')
-        return db.session.query(Article).order_by(Article.click_count.desc()).limit(5).all()
+        return db.session.query(Article).filter_by(deleted=Constant.UN_DELETED.value).order_by(Article.click_count.desc()).limit(5).all()
 
 
 def session_commit():

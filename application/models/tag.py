@@ -5,6 +5,7 @@
 from sqlalchemy.exc import SQLAlchemyError
 
 from application import db, app
+from application.constant.constant import Constant
 from application.models.article import Article
 from application.models.tag_article import TagArticle
 
@@ -59,7 +60,7 @@ class Tag(db.Model):
     def get_tag_by_id(tag_id, page_no, page_size=7):
         app.logger.info('get tag by id ...')
         tag = db.session.query(Tag).filter(Tag.id == tag_id).first()
-        return tag.articles.order_by(Article.date_publish.desc()).paginate(page_no, page_size, False)
+        return tag.articles.filter(Article.deleted == Constant.UN_DELETED.value).order_by(Article.date_publish.desc()).paginate(page_no, page_size, False)
 
     @staticmethod
     def get_id_by_tag(tags):

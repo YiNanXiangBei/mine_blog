@@ -25,9 +25,10 @@ from application.configs import ENCRYPT_KEY
 
 class CommonUtil(object):
     @staticmethod
-    def handle_img(base64_str, filename):
+    def handle_img(base64_str, filename, back_img=False):
         """
         将base64位数据转换成web格式图片
+        :param back_img:
         :param base64_str:
         :param filename:
         :return:
@@ -39,7 +40,12 @@ class CommonUtil(object):
         image_data = BytesIO(byte_data)
         img = Image.open(image_data)
         app.logger.info('img format: {}, size: {}, mode: {}'.format(img.format, img.size, img.mode))
-        img_thumb(img, image_path, webp_path)
+        if back_img:
+            # 是背景图片，添加遮罩
+            img_thumb(img, image_path, webp_path)
+        else:
+            # 不添加遮罩层
+            thumb_img(img, image_path, webp_path)
         return img
 
     @staticmethod
@@ -205,7 +211,7 @@ def _unpad(s):
 
 def img_thumb(img, img_path, webp_path):
     """
-    图片裁剪到适配浏览器大小，同时将图片保存为jpg和webp格式
+    图片裁剪到适配浏览器大小同事添加遮罩层，同时将图片保存为jpg和webp格式
     :param img:
     :param img_path:
     :param webp_path:
@@ -226,3 +232,20 @@ def img_thumb(img, img_path, webp_path):
     new_img.convert("RGB").save(webp_path, 'WEBP')
 
 
+def thumb_img(img, img_path, webp_path):
+    """
+    图片裁剪到适配浏览器大小同事添加遮罩层，同时将图片保存为jpg和webp格式
+    :param img:
+    :param img_path:
+    :param webp_path:
+    :return:
+    """
+    if max(img.size[0], img.size[1]) > 1000:
+        if img.size[0] > img.size[1]:
+            img.thumbnail((1600, 1200))
+        else:
+            img.thumbnail((1000, 1000))
+        img.save(img_path, 'JPEG', quality=90)
+    else:
+        img.save(img_path, 'JPEG')
+    img.convert("RGB").save(webp_path, 'WEBP')

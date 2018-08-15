@@ -15,6 +15,7 @@ class Constant(Enum):
     TWO = 2
     PASSWORD_LENGTH = 6
     WEBP_IMG = 'image/webp'
+    IS_BACK_IMG = True
 
 
 @unique

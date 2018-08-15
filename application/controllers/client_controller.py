@@ -193,6 +193,10 @@ def search(message):
 
 @client.route('/archive', methods=['GET'])
 def archive():
+    """
+    归档页面获取数据
+    :return:
+    """
     articles = Article.get_by_archive()
     if articles:
         publish_years = Article.get_archive_year()
@@ -224,6 +228,11 @@ def archive():
 
 @client.route('/image/<image_id>', methods=['GET'])
 def image(image_id):
+    """
+    重定向获取图片
+    :param image_id:
+    :return:
+    """
     tencent_config = configs.TENCENT_OAUTH
     accept = request.headers.get('Accept')
     image_url = 'http://{}.cosgz.myqcloud.com/{}'.format(tencent_config.get('bucket'), image_id)
