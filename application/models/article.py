@@ -102,7 +102,7 @@ class Article(db.Model):
         """
         app.logger.info("get article by archive ....")
         articles = db.session.query(Article, extract('year', Article.date_publish).label('year')).\
-            filter(Article.deleted == Constant.UN_DELETED.value).order_by(desc('year')).all()
+            filter(Article.deleted == Constant.UN_DELETED.value).order_by(desc(Article.date_publish)).all()
         return articles
 
     @staticmethod

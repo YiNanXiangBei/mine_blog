@@ -59,7 +59,7 @@ class Tag(db.Model):
     def get_tag_by_id(tag_id, page_no, page_size=7):
         app.logger.info('get tag by id ...')
         tag = db.session.query(Tag).filter(Tag.id == tag_id).first()
-        return tag.articles.order_by(Article.date_publish).paginate(page_no, page_size, False)
+        return tag.articles.order_by(Article.date_publish.desc()).paginate(page_no, page_size, False)
 
     @staticmethod
     def get_id_by_tag(tags):

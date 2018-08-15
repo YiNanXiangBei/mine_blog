@@ -108,7 +108,7 @@ def get_tag_articles(message):
                 'desc': item.desc,
                 'content': item.content,
                 'publish_time': item.date_publish,
-                'back_url': item.back_img.replace('.webp', '.tiny.webp')
+                'back_url': item.back_img.replace('.webp', '.tiny.webp') if item.back_img else None
             })
         return jsonify(response.return_message(
             {
