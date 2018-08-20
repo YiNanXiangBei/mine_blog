@@ -9,6 +9,7 @@ from application.auth.decrypt import decrypt
 from application.constant import response
 from application.constant.constant import Code, Message, Constant
 from application.models.article import Article
+from application.models.es_article import EsArticle
 from application.models.tag import Tag
 
 client = Blueprint('/', __name__)
@@ -239,3 +240,35 @@ def image(image_id):
     if accept.find(Constant.WEBP_IMG.value) == -1:
         image_url = image_url.replace('webp', 'jpg')
     return redirect(image_url)
+
+
+@client.route('/search_articles', methods=['GET'])
+@decrypt
+def search_articles(message):
+    if message['code'] != Code.SUCCESS.value:
+        return jsonify(message)
+    input_search = message['data']['search_params']
+    es = EsArticle()
+    all_articles = es.get_articles(input_search)
+    if all_articles['hits']:
+        articles = all_articles['hits']['hits']
+        article_list = []
+        for item in articles:
+            article = {
+                "id": item['_source']['id'],
+                "title": item['_source']['title'],
+                "content": item['_source']['content']
+            }
+            article_list.append(article)
+        return jsonify(response.return_message(
+            {
+                "articles": article_list
+            },
+            Message.SUCCESS.value,
+            Code.SUCCESS.value
+        ))
+    return jsonify(response.return_message(
+        None,
+        Message.BAD_REQUEST.value,
+        Code.BAD_REQUEST.value
+    ))
