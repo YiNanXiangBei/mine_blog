@@ -23,14 +23,12 @@ def decrypt(func):
     def wrapper():
         app.logger.info("request ip: {}".format(request.remote_addr))
         params = request.values.get('params')
-        app.logger.info("begin to rsa decrypt ...")
         result = CommonUtil.rsa_decrypt(ENCRYPT_KEY.get('private_key'), params)
         if result is None:
             return_result = response.return_message(None, Message.BAD_REQUEST.value, Code.BAD_REQUEST.value)
         else:
             result = eval(result)
             # 字符串类型的16位长度key,16进制字符串类型的data
-            app.logger.info("begin to aes decrypt ...")
             params = CommonUtil.aes_decrypt(result.get('key'), result.get('data'))
             app.logger.info("decrypt request params: {}".format(params))
             return_result = response.return_message(eval(params), Message.SUCCESS.value, Code.SUCCESS.value)

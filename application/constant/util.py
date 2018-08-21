@@ -139,7 +139,7 @@ class CommonUtil(object):
         :param biz_content:
         :return:
         """
-        app.logger.infor("begin to rsa_decrypt ....")
+        app.logger.info("begin to rsa_decrypt ....")
         rsakey = RSA.importKey(private_key)  # 导入读取到的私钥
         cipher = PKCS1_v1_5.new(rsakey)  # 生成对象
         try:
