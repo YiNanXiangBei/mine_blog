@@ -89,7 +89,7 @@ class Article(db.Model):
        :param search_params:
        :return: 
        """
-        app.logger.info("get article by searchparams ....")
+        app.logger.info("get article by search_params ....")
         value = '%{}%'.format(search_params)
         return db.session.query(Article).filter(Article.content.like(value)).order_by(
             Article.date_publish.desc()).all()

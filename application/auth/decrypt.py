@@ -32,6 +32,7 @@ def decrypt(func):
             # 字符串类型的16位长度key,16进制字符串类型的data
             app.logger.info("begin to aes decrypt ...")
             params = CommonUtil.aes_decrypt(result.get('key'), result.get('data'))
+            app.logger.info("decrypt request params: {}".format(params))
             return_result = response.return_message(eval(params), Message.SUCCESS.value, Code.SUCCESS.value)
         return func(return_result)
 

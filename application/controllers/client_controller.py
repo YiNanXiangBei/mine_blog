@@ -4,7 +4,7 @@
 # @filename: client_controller.py
 from flask import Blueprint, request, jsonify, redirect
 
-from application import configs
+from application import configs, app
 from application.auth.decrypt import decrypt
 from application.constant import response
 from application.constant.constant import Code, Message, Constant
@@ -26,6 +26,7 @@ def detail_article(message):
     if message['code'] != Code.SUCCESS.value:
         return jsonify(message)
     article_id = message['data']['article_id']
+    app.logger.info("request params - article_id: {}".format(article_id))
     article = Article.get_by_id(article_id)
     if article:
         tags = []
@@ -49,6 +50,7 @@ def detail_article(message):
             "next": next[0] if next else None
         }
         Article.update_click_count(article_id)
+        app.logger.info("request result: {}".format(result))
         return jsonify(response.return_message(
             data={
                 "article": result,
@@ -78,6 +80,7 @@ def tags():
                 "tag": tag.tag
             }
             data_tag.append(sin_tag)
+        app.logger.info("request result: {}".format(tags))
         return jsonify(response.return_message(
             {
                 'tags': data_tag
@@ -99,6 +102,7 @@ def get_tag_articles(message):
         return jsonify(message)
     tag_id = message['data']['tag_id']
     page_no = message['data']['page_no']
+    app.logger.info("request params - tag_id: {}, page_no: {}".format(tag_id, page_no))
     articles = Tag.get_tag_by_id(tag_id, page_no)
     article_list = []
     if articles:
@@ -111,6 +115,7 @@ def get_tag_articles(message):
                 'publish_time': item.date_publish,
                 'back_url': item.back_img.replace('.webp', '.tiny.webp') if item.back_img else None
             })
+        app.logger.info("request result: {}".format(article_list))
         return jsonify(response.return_message(
             {
                 'total': articles.total,
@@ -128,6 +133,7 @@ def index(message):
     if message['code'] != Code.SUCCESS.value:
         return jsonify(message)
     page_num = message['data']['page']
+    app.logger.info("request params - page: {}".format(page_num))
     articles = Article.get_article_by_pageno(page_num)
     if articles:
         article_list = []
@@ -146,6 +152,8 @@ def index(message):
                 'id': item.id,
                 'title': item.title
             })
+        app.logger.info("request result - total: {}, articles: {}, top_articles: {}".
+                        format(articles.total, article_list, top_articles))
         return jsonify(response.return_message(
             {
                 "total": articles.total,
@@ -168,6 +176,7 @@ def search(message):
     if message['code'] != Code.SUCCESS.value:
         return jsonify(message)
     input_search = message['data']['search_params']
+    app.logger.info("request params - search_params: {}".format(input_search))
     articles = Article.get_by_search(input_search)
     if articles:
         article_list = []
@@ -178,6 +187,7 @@ def search(message):
                 "content": item.content
             }
             article_list.append(article)
+        app.logger.info("request result: {}".format(article_list))
         return jsonify(response.return_message(
             {
                 "articles": article_list
@@ -215,6 +225,7 @@ def archive():
                 'publish_date': year[0],
                 'articles': article_list
             })
+        app.logger.info("request result: {}".format(article_list))
         return jsonify(response.return_message(
             archive_list,
             Message.SUCCESS.value,
@@ -236,9 +247,11 @@ def image(image_id):
     """
     tencent_config = configs.TENCENT_OAUTH
     accept = request.headers.get('Accept')
+    app.logger.info("request accept: {}".format(accept))
     image_url = 'http://{}.cosgz.myqcloud.com/{}'.format(tencent_config.get('bucket'), image_id)
     if accept.find(Constant.WEBP_IMG.value) == -1:
         image_url = image_url.replace('webp', 'jpg')
+    app.logger.info("redirect img_url: {}".format(image_url))
     return redirect(image_url)
 
 
@@ -248,6 +261,7 @@ def search_articles(message):
     if message['code'] != Code.SUCCESS.value:
         return jsonify(message)
     input_search = message['data']['search_params']
+    app.logger.info("request params - search_params: {}".format(input_search))
     es = EsArticle()
     all_articles = es.get_articles(input_search)
     if all_articles['hits']:
@@ -260,6 +274,7 @@ def search_articles(message):
                 "content": item['_source']['content']
             }
             article_list.append(article)
+        app.logger.info("request result: {}".format(article_list))
         return jsonify(response.return_message(
             {
                 "articles": article_list

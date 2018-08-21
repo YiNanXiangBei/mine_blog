@@ -25,10 +25,12 @@ class TagArticle(db.Model):
 
     @staticmethod
     def save(tag_article):
+        app.logger.info("save tag_article ...")
         db.session.add(tag_article)
 
     @staticmethod
     def delete(article_id):
+        app.logger.info("delete tag_article ...")
         db.session.query(TagArticle).filter_by(article_id=article_id).delete()
 
     @staticmethod

@@ -63,6 +63,7 @@ class CommonUtil(object):
         client = CosS3Client(config)
         remote_name = remote_name + img_type
         remote_url = '{}/{}'.format(configs.SYS_IMG_URL, remote_name)
+        app.logger.info("remote img url: {}".format(remote_url))
         response = None
         try:
             with open(image_path, 'rb') as fp:
@@ -83,7 +84,6 @@ class CommonUtil(object):
     def send_email(receiver, sid):
         mail_config = configs.EMAIL_OAUTH
         sender = mail_config.get('sender')
-        # receiver = '2043281367@qq.com'
 
         # 所使用的用来发送邮件的SMTP服务器
         smtp_server = mail_config.get('smtpServer')
@@ -112,13 +112,10 @@ class CommonUtil(object):
             smtp.connect(smtp_server)  # 连接发送邮件的服务器
             smtp.login(username, password)  # 登录服务器
             smtp.sendmail(sender, receiver, message.as_string())  # 填入邮件的相关信息并发送
-            app.logger.info("邮件发送成功！！！")
-            # print("邮件发送成功！！！")
+            app.logger.info("send email success ...")
             smtp.quit()
         except smtplib.SMTPException as e:
-            app.logger.info("邮件发送失败！！！")
-            return str(e)
-            # print("邮件发送失败！！！")
+            app.logger.error("send email error: {}".format(e))
 
     @staticmethod
     def encrypt(params):
@@ -142,6 +139,7 @@ class CommonUtil(object):
         :param biz_content:
         :return:
         """
+        app.logger.infor("begin to rsa_decrypt ....")
         rsakey = RSA.importKey(private_key)  # 导入读取到的私钥
         cipher = PKCS1_v1_5.new(rsakey)  # 生成对象
         try:
@@ -165,6 +163,7 @@ class CommonUtil(object):
                                        None).decode())
                 offset += default_length
             target = ''.join(params_lst)
+            app.logger.info("rsa decrypt success, value is : {}".format(target))
             return target
         except Exception as e:
             app.logger.error('rsa decrypt error: {}'.format(e))
@@ -179,6 +178,7 @@ class CommonUtil(object):
         :return:
         """
         # 解密的话要用key和iv生成新的AES对象
+        app.logger.info("begin to aes decrypt ...")
         try:
             iv = bytes.fromhex(params[:32])
             params = bytes.fromhex((params[32:]))
@@ -192,11 +192,12 @@ class CommonUtil(object):
     @staticmethod
     def tiny_img_thumb(img, filename):
         """
-        生成晓得缩略图
+        生成小缩略图
         :param img:
         :param filename:
         :return:
         """
+        app.logger.info("begin to generate tiny img ...")
         image_path = configs.SYS_UPLOAD_PATH + filename + '.jpg'
         webp_path = configs.SYS_UPLOAD_PATH + filename + '.webp'
         img.thumbnail((512, 512))
@@ -217,6 +218,7 @@ def img_thumb(img, img_path, webp_path):
     :param webp_path:
     :return:
     """
+    app.logger.info("begin to crop img and add model ...")
     bak_img = Image.new("RGB", img.size, "black")
     new_img = Image.blend(img, bak_img, 0.4)
     if max(img.size[0], img.size[1]) > 1000:
@@ -234,12 +236,13 @@ def img_thumb(img, img_path, webp_path):
 
 def thumb_img(img, img_path, webp_path):
     """
-    图片裁剪到适配浏览器大小同事添加遮罩层，同时将图片保存为jpg和webp格式
+    图片裁剪到适配浏览器大小不添加遮罩层，同时将图片保存为jpg和webp格式
     :param img:
     :param img_path:
     :param webp_path:
     :return:
     """
+    app.logger.info("begin to crop img ...")
     if max(img.size[0], img.size[1]) > 1000:
         if img.size[0] > img.size[1]:
             img.thumbnail((1600, 1200))

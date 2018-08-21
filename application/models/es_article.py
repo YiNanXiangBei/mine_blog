@@ -4,7 +4,7 @@
 # @filename: es_article.py
 from elasticsearch import Elasticsearch
 
-from application import configs
+from application import configs, app
 
 
 class EsArticle(object):
@@ -43,6 +43,10 @@ class EsArticle(object):
             }
         }
         config = configs.ES_CONFIG
-        all_articles = self.es.search(index=config.get('index'), doc_type=config.get('type'), body=search_params)
+        all_articles = None
+        try:
+            all_articles = self.es.search(index=config.get('index'), doc_type=config.get('type'), body=search_params)
+        except Exception as e:
+            app.logger.error("get data from es error: {}".format(e))
         return all_articles
 
