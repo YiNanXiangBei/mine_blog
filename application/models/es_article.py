@@ -9,7 +9,7 @@ from application import configs, app
 
 class EsArticle(object):
     def __init__(self, ip="127.0.0.1"):
-        self.es = Elasticsearch([ip])
+        self.es = Elasticsearch([ip], http_auth=(configs.ES_CONFIG.get('username'), configs.ES_CONFIG.get('password')))
 
     def get_articles(self, search_params):
         """
