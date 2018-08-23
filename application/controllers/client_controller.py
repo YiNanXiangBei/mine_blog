@@ -262,7 +262,7 @@ def search_articles(message):
         return jsonify(message)
     input_search = message['data']['search_params']
     app.logger.info("request params - search_params: {}".format(input_search))
-    es = EsArticle()
+    es = EsArticle(configs.ES_CONFIG.get('ip'))
     all_articles = es.get_articles(input_search)
     if all_articles['hits']:
         articles = all_articles['hits']['hits']
