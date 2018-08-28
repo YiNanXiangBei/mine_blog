@@ -248,7 +248,7 @@ def image(image_id):
     tencent_config = configs.TENCENT_OAUTH
     accept = request.headers.get('Accept')
     app.logger.info("request accept: {}".format(accept))
-    image_url = 'http://{}.cosgz.myqcloud.com/{}'.format(tencent_config.get('bucket'), image_id)
+    image_url = 'https://{}.cosgz.myqcloud.com/{}'.format(tencent_config.get('bucket'), image_id)
     if accept.find(Constant.WEBP_IMG.value) == -1:
         image_url = image_url.replace('webp', 'jpg')
     app.logger.info("redirect img_url: {}".format(image_url))
