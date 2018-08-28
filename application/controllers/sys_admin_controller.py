@@ -134,9 +134,12 @@ def change_info(message):
     if message['code'] != Code.SUCCESS.value:
         return jsonify(message)
     params = request.values.to_dict()
-    passwords = set_password(params['password'])
-    sys_user = SysUser(params['username'], passwords, params['email'], params['avatar'])
-    result = SysUser.update(sys_user)
+    if params['password'] == '':
+        result = SysUser.update_email(params['username'], params['email'])
+    else:
+        passwords = set_password(params['password'])
+        sys_user = SysUser(params['username'], passwords, params['email'], params['avatar'])
+        result = SysUser.update(sys_user)
     if result is None:
         # 为空说明存入数据库没有报错
         sys_user = SysUser.get_info(params['username'])

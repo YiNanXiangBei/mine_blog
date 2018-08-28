@@ -72,6 +72,19 @@ class SysUser(db.Model):
         return session_commit()
 
     @staticmethod
+    def update_email(username, email):
+        """
+        仅更新邮箱
+        :param username:
+        :param email:
+        :return:
+        """
+        app.logger.info("update sys_user email ....")
+        db.session.query(SysUser).filter_by(username=username). \
+            update({'email': email})
+        return session_commit()
+
+    @staticmethod
     def reset_password(username, password):
         app.logger.info("reset sys_user password ....")
         db.session.query(SysUser).filter_by(username=username). \
