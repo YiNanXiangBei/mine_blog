@@ -4,6 +4,7 @@
 # @filename: gevent_tornado.py.py
 import gevent.pywsgi
 from gevent import monkey
+monkey.patch_all()
 from logging.config import dictConfig
 from flask_cors import CORS
 from application import app, configs
@@ -15,7 +16,7 @@ CORS(client)
 app.register_blueprint(client, url_prefix='/')
 app.register_blueprint(admin, url_prefix='/sysadmin')
 dictConfig(configs.LOGGING_CONFIG)
-monkey.patch_all()
+
 
 if __name__ == "__main__":
     server = gevent.pywsgi.WSGIServer(('', 5000), app)

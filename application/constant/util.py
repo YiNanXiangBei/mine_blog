@@ -38,7 +38,7 @@ class CommonUtil(object):
         base64_data = re.sub('^data:image/.+;base64,', '', base64_str)
         byte_data = base64.b64decode(base64_data)
         image_data = BytesIO(byte_data)
-        img = Image.open(image_data)
+        img = Image.open(image_data).convert('RGB')
         app.logger.info('img format: {}, size: {}, mode: {}'.format(img.format, img.size, img.mode))
         if back_img:
             # 是背景图片，添加遮罩

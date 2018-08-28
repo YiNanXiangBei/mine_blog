@@ -33,31 +33,6 @@ def validate(message):
     return result
 
 
-# @jwt_required
-# @admin.route('/', methods=['GET'])
-# def index():
-#     return render_template('index.html')
-
-
-# @admin.route('/login', methods=['GET'])
-# def login_page():
-#     '''
-#     登录页面
-#     :return:
-#     '''
-#     pass
-#
-#
-# @jwt_required
-# @admin.route('/upload', methods=['GET'])
-# def upload_page():
-#     '''
-#     上传图片页面
-#     :return:
-#     '''
-#     pass
-#
-#
 @admin.route('/info', methods=['GET'])
 @jwt_required
 def info_page(message):
@@ -82,38 +57,6 @@ def info_page(message):
     return jsonify(response.return_message(data, Message.SUCCESS.value, Code.SUCCESS.value))
 
 
-#
-#
-# @jwt_required
-# @admin.route('/publish', methods=['GET'])
-# def publish_page():
-#     '''
-#     发布文章页面
-#     :return:
-#     '''
-#     pass
-#
-#
-# @jwt_required
-# @admin.route('/tags', methods=['GET'])
-# def tag_page():
-#     '''
-#     显示标签页面
-#     :return:
-#     '''
-#     pass
-#
-#
-# @jwt_required
-# @admin.route('/editor', methods=['GET'])
-# def edit_page():
-#     '''
-#     编辑文章页面
-#     :return:
-#     '''
-#     pass
-#
-#
 @admin.route('/login', methods=['POST'])
 def login():
     """
