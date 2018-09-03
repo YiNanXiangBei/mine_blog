@@ -43,7 +43,7 @@ def detail_article(message):
             "title": article.title,
             "desc": article.desc,
             "content": article.content,
-            "publish_time": 'Posted by yinan on' + article.date_publish.strftime('%b %d,%Y'),
+            "publish_time": 'Posted by yinan on ' + article.date_publish.strftime('%b %d,%Y'),
             "back_url": article.back_img,
             "tags": tags,
             "previous": previous[0] if previous else None,
