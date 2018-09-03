@@ -106,9 +106,9 @@ class CommonUtil(object):
         message['From'] = sender  # 邮件上显示的发件人
         message['To'] = receiver  # 邮件上显示的收件人
         message['Subject'] = Header(mail_title, 'utf-8')  # 邮件主题
-
+        app.logger.info('send message {}'.format(message))
         try:
-            smtp = smtplib.SMTP()  # 创建一个连接
+            smtp = smtplib.SMTP_SSL()  # 创建一个连接
             smtp.connect(smtp_server)  # 连接发送邮件的服务器
             smtp.login(username, password)  # 登录服务器
             smtp.sendmail(sender, receiver, message.as_string())  # 填入邮件的相关信息并发送
